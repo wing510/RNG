@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TXT&Excel Compare v2</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root{
+      --bg: #f5f7fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#111827;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-2:#1d4ed8;
+      --success:#16a34a;
+      --warn:#f59e0b;
+      --error:#ef4444;
+      --note-bg:#f2f5ff;
+      --note-line:#3b6ff9;
+      --radius: 12px;
+      --shadow: 0 6px 20px rgba(17,24,39,0.08);
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI",
+                   "Microsoft JhengHei", Arial, sans-serif;
+      color:var(--text);
+    }
+
+    .page{
+      max-width: 800px;
+      margin: 22px auto 48px;
+      padding: 0 14px;
+    }
+
+    /* Header */
+    .header{
+      background: linear-gradient(135deg, #ffffff 0%, #f7f9ff 100%);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .title-wrap{
+      display:flex; flex-direction:column; gap:4px;
+    }
+    h1{
+      margin:0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .subtitle{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .chip{
+      font-size:12px;
+      padding:6px 10px;
+      background:#eef2ff;
+      color:#3730a3;
+      border-radius:999px;
+      border:1px solid #e0e7ff;
+      white-space:nowrap;
+    }
+
+    /* Cards / Steps */
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+      margin-bottom:14px;
+      position: relative;
+    }
+    .card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .step{
+      display:flex; align-items:center; gap:10px;
+    }
+    .step-badge{
+      width:30px; height:30px;
+      border-radius:8px;
+      background:#eef2ff;
+      color:#3730a3;
+      font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      border:1px solid #e0e7ff;
+      flex: 0 0 auto;
+    }
+    .card-title{
+      font-size:17px;
+      font-weight:700;
+    }
+
+    .toggle-btn{
+      cursor:pointer;
+      font-size:12px;
+      color:var(--primary);
+      user-select:none;
+      display:flex; align-items:center; gap:6px;
+      padding:6px 8px;
+      border-radius:8px;
+      border:1px dashed #dbe3ff;
+      background:#f8faff;
+      white-space:nowrap;
+    }
+    .toggle-btn:hover{ background:#eef2ff; }
+
+    .note-box{
+      background: var(--note-bg);
+      border-left: 4px solid var(--note-line);
+      padding: 12px 14px;
+      border-radius: 8px;
+      line-height: 1.6;
+      color:#0f172a;
+      font-size:13px;
+      margin-top: 10px;
+      white-space: pre-line;
+    }
+    .hidden{ display:none; }
+
+    .summary{
+      font-size:12px;
+      color:#111827;
+      white-space:pre-line;
+    }
+
+    input[type="file"]{
+      width:100%;
+      padding:8px;
+      border:1px dashed var(--line);
+      border-radius: 8px;
+      background:#fafafa;
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    /* Buttons */
+    .actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    button{
+      border:0;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:700;
+      padding: 8px 14px;
+      border-radius: 10px;
+      display:inline-flex; align-items:center; gap:8px;
+      transition: transform .05s ease, background .15s ease, opacity .15s;
+    }
+    button:active{ transform: translateY(1px); }
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+      box-shadow: 0 6px 14px rgba(37,99,235,0.25);
+    }
+    .btn-primary:hover{ background:var(--primary-2); }
+    .btn-secondary{
+      background:#0ea5a5;
+      color:#fff;
+      box-shadow: 0 6px 14px rgba(14,165,165,0.24);
+    }
+    .btn-secondary:hover{ opacity:0.95; }
+
+    /* Result controls & table */
+    .result-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .result-controls label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+    }
+    .small-note {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 4px 6px;
+      text-align: center; /* 全部置中 */
+    }
+    th {
+      background: #f0f4ff;
+      font-weight: 600;
+    }
+    td.num-cell {
+      font-family: "Consolas", "Courier New", monospace;
+    }
+    tr.diff-row {
+      background: #fff7ed;
+    }
+    tr.same-row {
+      background: #f9fafb;
+    }
+    .highlight {
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .src-btn{
+      padding: 2px 6px;
+      font-size: 11px;
+      border-radius: 6px;
+      border:1px solid #9ca3af;
+      background:#f3f4f6;
+      cursor:pointer;
+      color:#111827;
+    }
+    .src-btn:hover{
+      background:#e5e7eb;
+    }
+
+    #sideTotals{
+      margin-top:2px;
+      white-space:pre-line;
+    }
+
+    @media (max-width: 680px){
+      .header{ flex-direction:column; align-items:flex-start; }
+      h1{ font-size:20px; }
+      .actions{ justify-content:stretch; }
+      .actions button{ width:100%; justify-content:center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title-wrap">
+        <h1>TXT vs Excel Compare</h1>
+      </div>
+      <div class="chip">RNG Tools</div>
+    </div>
+
+    <!-- Step 1 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">1</div>
+          <div class="card-title">上傳所有 TXT 檔（Before）</div>
+        </div>
+        <div class="toggle-btn" onclick="toggleSummary('wbSummaryBox', this)">ⓘ 顯示分析結果</div>
+      </div>
+      <input id="wbFiles" type="file" multiple />
+      <div id="wbSummaryBox" class="note-box hidden">
+        <div id="wbSummary" class="summary"></div>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">2</div>
+          <div class="card-title">上傳所有 Excel 檔（After）</div>
+        </div>
+        <div class="toggle-btn" onclick="toggleSummary('excelSummaryBox', this)">ⓘ 顯示分析結果</div>
+      </div>
+      <input id="excelFiles" type="file" multiple accept=".xlsx,.xlsb,.xlsm,.xls" />
+      <div id="excelSummaryBox" class="note-box hidden">
+        <div id="excelSummary" class="summary"></div>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">3</div>
+          <div class="card-title">Compare & Download</div>
+        </div>
+        <div class="toggle-btn" onclick="toggleSummary('compareSummaryBox', this)">ⓘ 顯示分析結果</div>
+      </div>
+      <div class="actions">
+        <button id="btnCompare" class="btn-primary" onclick="runCompare()" disabled>開始 Compare</button>
+        <button id="btnDownloadCsv" class="btn-secondary" onclick="downloadCsv()" disabled>Download CSV</button>
+      </div>
+      <div id="compareSummaryBox" class="note-box hidden">
+        <div id="compareSummary" class="summary"></div>
+      </div>
+    </section>
+
+    <!-- Result -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">✓</div>
+          <div class="card-title">比對結果 / Comparison Result</div>
+        </div>
+      </div>
+      <div class="result-controls">
+        <label>
+          <input type="checkbox" id="chkOnlyDiff" onchange="renderTable()" checked>
+          只顯示有差異的號碼
+        </label>
+        <label>
+          <input type="checkbox" id="chkOnlyExcelLess" onchange="renderTable()">
+          只顯示 exl_B/S 小於 txt_B/S 的號碼
+        </label>
+        <span id="resultStats" class="small-note"></span>
+      </div>
+      <div id="sideTotals" class="small-note">
+        <!-- TXT檔 / Excel檔 統計會寫在這 -->
+      </div>
+      <div style="max-height: 420px; overflow:auto; border:1px solid #e5e7eb; border-radius:8px; margin-top:4px;">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>exl_Big</th>
+              <th>exl_Small</th>
+              <th>txt_Roll</th>
+              <th>txt_Big</th>
+              <th>txt_Small</th>
+              <th>ΔB</th>
+              <th>ΔS</th>
+              <th>Sources</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ====== Toggle summary boxes ======
+    function toggleSummary(id, btnEl) {
+      const box = document.getElementById(id);
+      if (!box) return;
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        btnEl.textContent = 'ⓘ 隱藏分析結果';
+      } else {
+        box.classList.add('hidden');
+        btnEl.textContent = 'ⓘ 顯示分析結果';
+      }
+    }
+
+    // ----- 全域儲存 -----
+    const beforeMap = new Map();   // number -> { beforeB, beforeS }
+    const afterMap = new Map();    // number -> { afterB, afterS }
+    const beforeDetail = new Map(); // number -> Map(sourceId -> {B,S})
+    const afterDetail = new Map();  // number -> Map(sourceId -> {B,S})
+    const rollSourceBefore = new Map(); // number -> Set(rollLabel from TXT)
+    let compareRows = [];
+
+    // ====== 共用小工具 ======
+
+    function expandRollDigits(digits) {
+      const res = new Set();
+      if (!/^\d{4}$/.test(digits)) return [];
+      const arr = digits.split("");
+      const used = [false,false,false,false];
+      const path = [];
+
+      function backtrack() {
+        if (path.length === arr.length) {
+          res.add(path.join(""));
+          return;
+        }
+        for (let i = 0; i < arr.length; i++) {
+          if (used[i]) continue;
+          used[i] = true;
+          path.push(arr[i]);
+          backtrack();
+          path.pop();
+          used[i] = false;
+        }
+      }
+      backtrack();
+      return Array.from(res).sort();
+    }
+
+    function normalizeFourDigit(numStr) {
+      if (numStr == null) return null;
+      let s = String(numStr).trim();
+      s = s.replace(/\s+/g, "");
+      if (!/^\d+$/.test(s)) return null;
+      if (s.length > 4) return null;
+      return s.padStart(4, "0");
+    }
+
+    // TXT token -> { numbers[], rollLabel(原始字串或 null) }
+    function parseTokenToNumbersAndRoll(token) {
+      if (!token) return { numbers: [], rollLabel: null };
+      let s = String(token).trim();
+
+      // 4 digits + r / R
+      let m = s.match(/^(\d{4})[rR]$/);
+      if (m) {
+        const digits = m[1];
+        const nums = expandRollDigits(digits);
+        return { numbers: nums, rollLabel: s }; // e.g. "4542r"
+      }
+
+      const pure = normalizeFourDigit(s);
+      if (pure) return { numbers: [pure], rollLabel: null };
+
+      return { numbers: [], rollLabel: null };
+    }
+
+    // Excel cell -> numbers[]（不記錄 roll）
+    function expandExcelNumberCell(val) {
+      if (val == null) return [];
+      let s = String(val).trim();
+      if (!s) return [];
+
+      // 0009 (R)
+      let m = s.match(/^(\d{4})\s*\(R\)$/i);
+      if (m) {
+        const digits = m[1];
+        return expandRollDigits(digits);
+      }
+
+      // 0009r / 0009R
+      m = s.match(/^(\d{4})[rR]$/);
+      if (m) {
+        const digits = m[1];
+        return expandRollDigits(digits);
+      }
+
+      const num = normalizeFourDigit(s);
+      if (num) return [num];
+
+      return [];
+    }
+
+    function recordRollSource(map, num, label) {
+      if (!label) return;
+      let set = map.get(num);
+      if (!set) {
+        set = new Set();
+        map.set(num, set);
+      }
+      set.add(label);
+    }
+
+    function parseDashBigSmall(token) {
+      if (typeof token !== "string") return { b: 0, s: 0, ok: false };
+      const t = token.trim();
+      if (!t.includes("-")) return { b: 0, s: 0, ok: false };
+      const parts = t.split("-");
+      if (parts.length !== 2) return { b: 0, s: 0, ok: false };
+
+      const bStr = parts[0];
+      const sStr = parts[1];
+      let b = 0, s = 0;
+
+      if (bStr !== "") {
+        if (!/^\d+$/.test(bStr)) return { b: 0, s: 0, ok: false };
+        b = parseInt(bStr, 10) || 0;
+      }
+      if (sStr !== "") {
+        if (!/^\d+$/.test(sStr)) return { b: 0, s: 0, ok: false };
+        s = parseInt(sStr, 10) || 0;
+      }
+      return { b, s, ok: true };
+    }
+
+    function addBefore(number, b, s, sourceId) {
+      if (!number) return;
+      const key = number;
+      const cur = beforeMap.get(key) || { beforeB: 0, beforeS: 0 };
+      cur.beforeB += b || 0;
+      cur.beforeS += s || 0;
+      beforeMap.set(key, cur);
+
+      if (sourceId) {
+        let srcMap = beforeDetail.get(key);
+        if (!srcMap) {
+          srcMap = new Map();
+          beforeDetail.set(key, srcMap);
+        }
+        const src = srcMap.get(sourceId) || { B: 0, S: 0 };
+        src.B += b || 0;
+        src.S += s || 0;
+        srcMap.set(sourceId, src);
+      }
+    }
+
+    function addAfter(number, b, s, sourceId) {
+      if (!number) return;
+      const key = number;
+      const cur = afterMap.get(key) || { afterB: 0, afterS: 0 };
+      cur.afterB += b || 0;
+      cur.afterS += s || 0;
+      afterMap.set(key, cur);
+
+      if (sourceId) {
+        let srcMap = afterDetail.get(key);
+        if (!srcMap) {
+          srcMap = new Map();
+          afterDetail.set(key, srcMap);
+        }
+        const src = srcMap.get(sourceId) || { B: 0, S: 0 };
+        src.B += b || 0;
+        src.S += s || 0;
+        srcMap.set(sourceId, src);
+      }
+    }
+
+    // ====== Step1：解析 TXT（Before） ======
+
+    // ARA：每一行獨立
+    function parseAraText(content, sourceIdBase) {
+      const lines = content.split(/\r?\n/);
+      let countLines = 0, countNums = 0;
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        const parts = line.split("+");
+        if (parts.length < 4) continue;
+        const token = parts[1] || "";
+        const { numbers, rollLabel } = parseTokenToNumbersAndRoll(token);
+        if (numbers.length === 0) continue;
+        const bigField = parts[2] || "";
+        const smallField = parts[3] || "";
+        const bigMatch = bigField.match(/(\d+)/);
+        const smallMatch = smallField.match(/(\d+)/);
+        const b = bigMatch ? parseInt(bigMatch[1], 10) : 0;
+        const s = smallMatch ? parseInt(smallMatch[1], 10) : 0;
+
+        for (const numStr of numbers) {
+          addBefore(numStr, b, s, sourceIdBase);
+          if (rollLabel) recordRollSource(rollSourceBefore, numStr, rollLabel);
+          countNums++;
+        }
+        countLines++;
+      }
+      return { countLines, countNums };
+    }
+
+    // KEY：一行一組，rollLabel 只記自己那一個
+    function parseKeyText(content, sourceIdBase) {
+      const lines = content.split(/\r?\n/);
+      let countLines = 0, countNums = 0;
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        const tokens = line.split(/\s+/);
+        if (tokens.length < 2) continue;
+        const numToken = tokens[0];
+        const { numbers, rollLabel } = parseTokenToNumbersAndRoll(numToken);
+        if (numbers.length === 0) continue;
+        const dash = tokens[tokens.length - 1];
+        const { b, s, ok } = parseDashBigSmall(dash);
+        if (!ok) continue;
+        for (const numStr of numbers) {
+          addBefore(numStr, b, s, sourceIdBase);
+          if (rollLabel) recordRollSource(rollSourceBefore, numStr, rollLabel);
+          countNums++;
+        }
+        countLines++;
+      }
+      return { countLines, countNums };
+    }
+
+    // TG：同一組裡，每個 token 自己決定自己的 rollLabel
+    function parseTgText(content, sourceIdBase) {
+      const lines = content.split(/\r?\n/);
+      let countLines = 0, countNums = 0;
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        const tokens = line.split(/\s+/);
+        if (tokens.length < 4) continue;
+
+        const startIdx = 2; // 前兩個是 week / TGID
+        let groupUnits = []; // 每組：[{num, rollLabel}, ...]
+
+        for (let i = startIdx; i < tokens.length; i++) {
+          const t = tokens[i];
+          const dashCheck = parseDashBigSmall(t);
+          if (dashCheck.ok) {
+            const { b, s } = dashCheck;
+            // 這組 groupUnits 才真正寫入 B/S & roll
+            for (const u of groupUnits) {
+              addBefore(u.num, b, s, sourceIdBase);
+              if (u.rollLabel) recordRollSource(rollSourceBefore, u.num, u.rollLabel);
+              countNums++;
+            }
+            groupUnits = [];
+          } else {
+            const { numbers, rollLabel } = parseTokenToNumbersAndRoll(t);
+            if (numbers.length > 0) {
+              for (const n of numbers) {
+                groupUnits.push({ num: n, rollLabel });
+              }
+            } else {
+              // 其他 token 略過（如 TGID、week 已在前面）
+            }
+          }
+        }
+        if (line) countLines++;
+      }
+      return { countLines, countNums };
+    }
+
+    function guessFileType(fileName, content) {
+      const lower = fileName.toLowerCase();
+      if (lower.includes("_ara") || lower.endsWith(".ara")) return "ara";
+      if (lower.includes("_key")) return "key";
+      if (lower.includes("_tg")) return "tg";
+      if (lower.includes("download_all")) return "all";
+
+      if (content.includes("*1|N") && content.includes("+")) return "ara";
+      if (/\b\d{4}\s+-?\d*-?\d*\b/.test(content)) return "key";
+      if (/\b\d+\s+\S+\s+\d{4}\b/.test(content)) return "tg";
+      return "unknown";
+    }
+
+    function parseDownloadAll(content, sourceIdBase) {
+      const lines = content.split(/\r?\n/);
+      let mode = null;
+      let buffer = [];
+      let countLines = 0, countNums = 0;
+
+      function flushCurrent(mode, bufferLines, blockName) {
+        if (!mode || bufferLines.length === 0) return;
+        const text = bufferLines.join("\n");
+        let r = { countLines: 0, countNums: 0 };
+        const srcId = `${sourceIdBase} :: ${blockName}`;
+        if (mode === "ara") {
+          r = parseAraText(text, srcId);
+        } else if (mode === "keyin") {
+          r = parseKeyText(text, srcId);
+        } else if (mode === "tg") {
+          r = parseTgText(text, srcId);
+        }
+        countLines += r.countLines;
+        countNums += r.countNums;
+      }
+
+      let currentBlockName = "";
+
+      for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        if (!line) continue;
+
+        const mType = line.match(/^type:(\w+)\s*(.*)$/i);
+        const mEnd = line.match(/^endtype:(\w+)\s*(.*)$/i);
+
+        if (mEnd) {
+          flushCurrent(mode, buffer, currentBlockName);
+          mode = null;
+          buffer = [];
+          currentBlockName = "";
+          continue;
+        }
+
+        if (mType) {
+          flushCurrent(mode, buffer, currentBlockName);
+          mode = mType[1].toLowerCase();
+          currentBlockName = mType[2] || "";
+          buffer = [];
+          continue;
+        }
+
+        if (mode && line.startsWith("line:")) continue;
+        if (mode) buffer.push(line);
+      }
+
+      flushCurrent(mode, buffer, currentBlockName);
+      return { countLines, countNums };
+    }
+
+    function parseWbFiles() {
+      beforeMap.clear();
+      beforeDetail.clear();
+      rollSourceBefore.clear();
+
+      const input = document.getElementById("wbFiles");
+      const summaryEl = document.getElementById("wbSummary");
+      summaryEl.textContent = "解析中 / Parsing...";
+
+      const files = Array.from(input.files || []);
+      if (files.length === 0) {
+        summaryEl.textContent = "尚未選擇檔案 / No files selected.";
+        updateCompareButton();
+        return;
+      }
+
+      let finished = 0;
+      let totalLines = 0;
+      let totalNums = 0;
+      let detailLines = [];
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const text = e.target.result || "";
+          const type = guessFileType(file.name, text);
+          let r = { countLines: 0, countNums: 0 };
+          const srcBase = file.name;
+
+          if (type === "ara") {
+            r = parseAraText(text, srcBase);
+          } else if (type === "key") {
+            r = parseKeyText(text, srcBase);
+          } else if (type === "tg") {
+            r = parseTgText(text, srcBase);
+          } else if (type === "all") {
+            r = parseDownloadAll(text, srcBase);
+          }
+
+          totalLines += r.countLines;
+          totalNums += r.countNums;
+          detailLines.push(`${file.name} → lines:${r.countLines}, numbers:${r.countNums}`);
+
+          finished++;
+          if (finished === files.length) {
+            const distinct = beforeMap.size;
+            summaryEl.textContent =
+              `共處理 TXT 檔案數：${files.length}\n` +
+              detailLines.join("\n") + "\n\n" +
+              `Before 有效行數：${totalLines}\n` +
+              `Before 總號碼筆數（展開後）：${totalNums}\n` +
+              `Before 不重複號碼數：${distinct}`;
+            updateCompareButton();
+          }
+        };
+        reader.readAsText(file, "utf-8");
+      });
+    }
+
+    // ====== Step2：Excel 偵測規則 ======
+
+    function isNumHeaderText(h) {
+      const s = (h || "").toString().trim().toLowerCase();
+      if (!s) return false;
+      return (
+        s.includes("number") ||
+        s === "num" ||
+        s === "no" ||
+        s === "no." ||
+        s.includes("號碼") ||
+        s.includes("數字")
+      );
+    }
+
+    function isBigHeaderText(h) {
+      const s = (h || "").toString().trim().toLowerCase();
+      if (!s) return false;
+      return (
+        s.includes("big") ||
+        s === "b" ||
+        s.includes("大")
+      );
+    }
+
+    function isSmallHeaderText(h) {
+      const s = (h || "").toString().trim().toLowerCase();
+      if (!s) return false;
+      return (
+        s.includes("small") ||
+        s.includes("sml") ||
+        s === "s" ||
+        s.includes("小")
+      );
+    }
+
+    function rowLooksLikeTotal(row) {
+      const joined = (row || []).map(c => (c || "").toString().toLowerCase()).join("");
+      if (!joined) return false;
+      return joined.includes("total") || joined.includes("合計") || joined.includes("總計");
+    }
+
+    function findNumberWithOutBlock(rows) {
+      const maxCheckRows = Math.min(40, rows.length);
+      const numCandidates = [];
+      const outCells = [];
+
+      for (let r = 0; r < maxCheckRows; r++) {
+        const row = rows[r] || [];
+        for (let c = 0; c < row.length; c++) {
+          const v = (row[c] || "").toString().trim().toLowerCase();
+          if (!v) continue;
+          if (isNumHeaderText(v)) {
+            numCandidates.push({ row: r, col: c });
+          }
+          if (v === "out") {
+            outCells.push({ row: r, col: c });
+          }
+        }
+      }
+      if (numCandidates.length === 0 || outCells.length === 0) return null;
+
+      function locateBigSmall(baseRow, startCol) {
+        const maxRight = startCol + 8;
+        for (let tryRow = baseRow; tryRow <= baseRow + 1 && tryRow < rows.length; tryRow++) {
+          const row = rows[tryRow] || [];
+          let bigCol = -1, smlCol = -1;
+          for (let c = startCol; c <= maxRight && c < row.length; c++) {
+            const v = row[c];
+            if (bigCol === -1 && isBigHeaderText(v)) bigCol = c;
+            else if (bigCol !== -1 && smlCol === -1 && isSmallHeaderText(v)) {
+              smlCol = c;
+              break;
+            }
+          }
+          if (bigCol !== -1 && smlCol !== -1) {
+            return { rowIndex: tryRow, bigCol, smlCol };
+          }
+        }
+        return null;
+      }
+
+      let best = null;
+      let bestScore = Infinity;
+
+      for (const out of outCells) {
+        const bs = locateBigSmall(out.row, out.col);
+        if (!bs) continue;
+
+        let chosenNum = null;
+        let chosenScore = Infinity;
+        for (const cand of numCandidates) {
+          const dr = Math.abs(cand.row - out.row);
+          const dc = Math.abs(cand.col - out.col);
+          const score = dr * 10 + dc;
+          if (score < chosenScore) {
+            chosenScore = score;
+            chosenNum = cand;
+          }
+        }
+        if (!chosenNum) continue;
+
+        const startRow = Math.max(out.row, chosenNum.row, bs.rowIndex);
+        const score = chosenScore;
+        if (score < bestScore) {
+          bestScore = score;
+          best = {
+            startRow,
+            mappings: [
+              { numCol: chosenNum.col, bigCol: bs.bigCol, smlCol: bs.smlCol }
+            ]
+          };
+        }
+      }
+      return best;
+    }
+
+    function findMultiBlockRowMapping(rows) {
+      const maxCheckRows = Math.min(80, rows.length);
+      for (let r = 0; r < maxCheckRows; r++) {
+        const row = rows[r] || [];
+        const mappings = [];
+        for (let c = 0; c < row.length; c++) {
+          const v = row[c];
+          if (!isNumHeaderText(v)) continue;
+
+          let bigCol = -1, smlCol = -1;
+          for (let j = c + 1; j < c + 6 && j < row.length; j++) {
+            if (bigCol === -1 && isBigHeaderText(row[j])) {
+              bigCol = j;
+            } else if (bigCol !== -1 && smlCol === -1 && isSmallHeaderText(row[j])) {
+              smlCol = j;
+              break;
+            }
+          }
+          if (bigCol !== -1 && smlCol !== -1) {
+            mappings.push({ numCol: c, bigCol, smlCol });
+          }
+        }
+        if (mappings.length > 0) {
+          return { startRow: r, mappings };
+        }
+      }
+      return null;
+    }
+
+    function findSimpleHeaderMapping(rows) {
+      const maxCheckRows = Math.min(80, rows.length);
+      for (let r = 0; r < maxCheckRows; r++) {
+        const row = rows[r] || [];
+        let colNum = -1, colBig = -1, colSmall = -1;
+        for (let c = 0; c < row.length; c++) {
+          const v = row[c];
+          if (colNum === -1 && isNumHeaderText(v)) colNum = c;
+          else if (colBig === -1 && isBigHeaderText(v)) colBig = c;
+          else if (colSmall === -1 && isSmallHeaderText(v)) colSmall = c;
+        }
+        if (colNum !== -1 && colBig !== -1 && colSmall !== -1) {
+          return {
+            startRow: r,
+            mappings: [{ numCol: colNum, bigCol: colBig, smlCol: colSmall }]
+          };
+        }
+      }
+      return null;
+    }
+
+    function find4DHeaderIndex(rows) {
+      const maxCheckRows = Math.min(80, rows.length);
+      for (let r = 0; r < maxCheckRows; r++) {
+        const row = rows[r] || [];
+        const joined = row.map(c => (c || "").toString().toLowerCase()).join("");
+        if (!joined) continue;
+        if (joined.includes("4d")) {
+          return r;
+        }
+      }
+      return -1;
+    }
+
+    function isInOutStructure(rows, startIdx) {
+      let hasIn = false;
+      let hasOut = false;
+      let bigSmallHeaderRows = 0;
+      const start = Math.max(0, startIdx - 5);
+      const end = Math.min(rows.length - 1, startIdx + 20);
+
+      for (let r = start; r <= end; r++) {
+        const row = rows[r] || [];
+        const joined = row.map(c => (c || "").toString().toLowerCase()).join("");
+        if (joined.includes("in")) hasIn = true;
+        if (joined.includes("out")) hasOut = true;
+
+        let hasBig = false, hasSmall = false;
+        for (let c = 0; c < row.length; c++) {
+          const v = row[c];
+          if (isBigHeaderText(v)) hasBig = true;
+          if (isSmallHeaderText(v)) hasSmall = true;
+        }
+        if (hasBig && hasSmall) bigSmallHeaderRows++;
+      }
+      return (hasIn && hasOut) || bigSmallHeaderRows >= 2;
+    }
+
+    function detectExcelMappings(rows) {
+      const outRes = findNumberWithOutBlock(rows);
+      if (outRes && outRes.mappings && outRes.mappings.length > 0) return outRes;
+
+      const multiRes = findMultiBlockRowMapping(rows);
+      if (multiRes && multiRes.mappings && multiRes.mappings.length > 0) return multiRes;
+
+      const simpleRes = findSimpleHeaderMapping(rows);
+      if (simpleRes && simpleRes.mappings && simpleRes.mappings.length > 0) return simpleRes;
+
+      const idx4d = find4DHeaderIndex(rows);
+      if (idx4d !== -1) {
+        const inOut = isInOutStructure(rows, idx4d);
+        const numCol = 0;
+        const bigCol = inOut ? 7 : 1;
+        const smlCol = inOut ? 8 : 2;
+        return {
+          startRow: idx4d,
+          mappings: [{ numCol, bigCol, smlCol }]
+        };
+      }
+
+      return null;
+    }
+
+    function extractExcelByMappings(rows, startRow, mappings, sourceId) {
+      let rowCount = 0;
+      let numCount = 0;
+      for (let r = startRow + 1; r < rows.length; r++) {
+        const row = rows[r] || [];
+        if (rowLooksLikeTotal(row)) break;
+
+        const nonEmpty = row.some(c => c != null && String(c).trim() !== "");
+        if (!nonEmpty) continue;
+
+        let usedThisRow = false;
+
+        for (const m of mappings) {
+          const rawNumCell = row[m.numCol];
+          if (rawNumCell == null || rawNumCell === "") continue;
+
+          const numbers = expandExcelNumberCell(rawNumCell);
+          if (numbers.length === 0) continue;
+
+          let b = parseFloat(row[m.bigCol]);
+          let s = parseFloat(row[m.smlCol]);
+          if (isNaN(b)) b = 0;
+          if (isNaN(s)) s = 0;
+
+          for (const n of numbers) {
+            addAfter(n, b, s, sourceId);
+            numCount++;
+          }
+          usedThisRow = true;
+        }
+        if (usedThisRow) rowCount++;
+      }
+      return { rowCount, numCount };
+    }
+
+    function parseExcelFiles() {
+      afterMap.clear();
+      afterDetail.clear();
+
+      const input = document.getElementById("excelFiles");
+      const summaryEl = document.getElementById("excelSummary");
+      summaryEl.textContent = "解析中 / Parsing...";
+
+      const files = Array.from(input.files || []);
+      if (files.length === 0) {
+        summaryEl.textContent = "尚未選擇檔案 / No files selected.";
+        updateCompareButton();
+        return;
+      }
+
+      let finished = 0;
+      let totalRows = 0;
+      let totalNums = 0;
+      let detailLines = [];
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const data = new Uint8Array(e.target.result);
+          let workbook;
+          try {
+            workbook = XLSX.read(data, { type: "array" });
+          } catch (err) {
+            detailLines.push(`${file.name} → 讀取失敗 / Failed to read`);
+            finished++;
+            if (finished === files.length) finalize();
+            return;
+          }
+
+          let fileRowCount = 0;
+          let fileNumCount = 0;
+          let sheetUsed = 0;
+
+          for (const sheetName of workbook.SheetNames) {
+            const sheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
+            if (!rows || rows.length === 0) continue;
+
+            const mappingInfo = detectExcelMappings(rows);
+            if (!mappingInfo) continue;
+
+            const { startRow, mappings } = mappingInfo;
+            const srcId = `${file.name} :: ${sheetName}`;
+            const r = extractExcelByMappings(rows, startRow, mappings, srcId);
+            if (r.rowCount > 0 || r.numCount > 0) {
+              sheetUsed++;
+              fileRowCount += r.rowCount;
+              fileNumCount += r.numCount;
+            }
+          }
+
+          totalRows += fileRowCount;
+          totalNums += fileNumCount;
+
+          if (sheetUsed === 0) {
+            detailLines.push(`${file.name} → 找不到 number/big/small 結構 / Missing N-B-S structure`);
+          } else {
+            detailLines.push(`${file.name} → sheets used:${sheetUsed}, rows:${fileRowCount}, numbers:${fileNumCount}`);
+          }
+
+          finished++;
+          if (finished === files.length) finalize();
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      function finalize() {
+        const input = document.getElementById("excelFiles");
+        const distinct = afterMap.size;
+        summaryEl.textContent =
+          `共處理 Excel 檔案數：${(input.files || []).length}\n` +
+          detailLines.join("\n") + "\n\n" +
+          `After 資料列數 (有效)：${totalRows}\n` +
+          `After 總號碼筆數（展開後）：${totalNums}\n` +
+          `After 不重複號碼數：${distinct}`;
+        updateCompareButton();
+      }
+    }
+
+    // ====== Step3：Compare & Render ======
+
+    function updateCompareButton() {
+      const btn = document.getElementById("btnCompare");
+      const hasBefore = beforeMap.size > 0;
+      const hasAfter = afterMap.size > 0;
+      btn.disabled = !(hasBefore && hasAfter);
+    }
+
+    function runCompare() {
+      compareRows = [];
+
+      const allNumbers = new Set([
+        ...beforeMap.keys(),
+        ...afterMap.keys()
+      ]);
+
+      let sameCount = 0;
+      let diffCount = 0;
+
+      allNumbers.forEach(num => {
+        const before = beforeMap.get(num) || { beforeB: 0, beforeS: 0 };
+        const after = afterMap.get(num) || { afterB: 0, afterS: 0 };
+        const row = {
+          number: num,
+          beforeB: before.beforeB || 0,
+          beforeS: before.beforeS || 0,
+          afterB: after.afterB || 0,
+          afterS: after.afterS || 0
+        };
+        row.diffB = row.afterB - row.beforeB;
+        row.diffS = row.afterS - row.beforeS;
+        row.isSame = (row.diffB === 0 && row.diffS === 0);
+        row.beforeSources = beforeDetail.get(num) || new Map();
+        row.afterSources = afterDetail.get(num) || new Map();
+
+        const rb = rollSourceBefore.get(num);
+        row.txtRollLabel = rb ? Array.from(rb).join("; ") : "";
+
+        if (row.isSame) sameCount++; else diffCount++;
+        compareRows.push(row);
+      });
+
+      compareRows.sort((a, b) => a.number.localeCompare(b.number));
+
+      const summaryEl = document.getElementById("compareSummary");
+      summaryEl.textContent =
+        `總號碼數 (All numbers)：${compareRows.length}\n` +
+        `完全相同 (no diff)：${sameCount}\n` +
+        `有差異 (has diff)：${diffCount}`;
+
+      // TXT / Excel 總結
+      let txtB = 0, txtS = 0;
+      beforeMap.forEach(v => {
+        txtB += v.beforeB || 0;
+        txtS += v.beforeS || 0;
+      });
+      let exlB = 0, exlS = 0;
+      afterMap.forEach(v => {
+        exlB += v.afterB || 0;
+        exlS += v.afterS || 0;
+      });
+
+      const txtNum = beforeMap.size;
+      const exlNum = afterMap.size;
+
+      const totalsEl = document.getElementById("sideTotals");
+      totalsEl.textContent =
+        `TXT檔 Number：${txtNum}，B：${txtB}，S：${txtS}\n` +
+        `Excel檔 Number：${exlNum}，B：${exlB}，S：${exlS}`;
+
+      document.getElementById("btnDownloadCsv").disabled = compareRows.length === 0;
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#resultTable tbody");
+      tbody.innerHTML = "";
+      const onlyDiff = document.getElementById("chkOnlyDiff").checked;
+      const onlyExcelLess = document.getElementById("chkOnlyExcelLess").checked;
+
+      let showCount = 0;
+      let diffCount = 0;
+
+      for (const row of compareRows) {
+        if (onlyDiff && row.isSame) continue;
+
+        // exl_B/S 小於 txt_B/S：只要其中一個小於就算
+        if (onlyExcelLess) {
+          const excelLess = (row.afterB < row.beforeB) || (row.afterS < row.beforeS);
+          if (!excelLess) continue;
+        }
+
+        const tr = document.createElement("tr");
+        tr.className = row.isSame ? "same-row" : "diff-row";
+
+        const tdNum = document.createElement("td");
+        tdNum.textContent = row.number;
+        tdNum.className = "num-cell";
+        tr.appendChild(tdNum);
+
+        const tdExlB = document.createElement("td");
+        tdExlB.textContent = row.afterB.toString();
+        tr.appendChild(tdExlB);
+
+        const tdExlS = document.createElement("td");
+        tdExlS.textContent = row.afterS.toString();
+        tr.appendChild(tdExlS);
+
+        const tdTxtRoll = document.createElement("td");
+        tdTxtRoll.textContent = row.txtRollLabel || "";
+        tr.appendChild(tdTxtRoll);
+
+        const tdTxtB = document.createElement("td");
+        tdTxtB.textContent = row.beforeB.toString();
+        tr.appendChild(tdTxtB);
+
+        const tdTxtS = document.createElement("td");
+        tdTxtS.textContent = row.beforeS.toString();
+        tr.appendChild(tdTxtS);
+
+        const tdDB = document.createElement("td");
+        tdDB.textContent = row.diffB.toString();
+        if (row.diffB !== 0) tdDB.classList.add("highlight");
+        tr.appendChild(tdDB);
+
+        const tdDS = document.createElement("td");
+        tdDS.textContent = row.diffS.toString();
+        if (row.diffS !== 0) tdDS.classList.add("highlight");
+        tr.appendChild(tdDS);
+
+        const tdSrc = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "🔍";
+        btn.className = "src-btn";
+        btn.title = "查看來源 / View sources";
+        btn.onclick = () => showSources(row);
+        tdSrc.appendChild(btn);
+        tr.appendChild(tdSrc);
+
+        tbody.appendChild(tr);
+        showCount++;
+        if (!row.isSame) diffCount++;
+      }
+
+      const statsEl = document.getElementById("resultStats");
+      statsEl.textContent =
+        `目前顯示列數：${showCount}，其中有差異：${diffCount}`;
+    }
+
+    function showSources(row) {
+      const num = row.number;
+      const beforeSrc = row.beforeSources;
+      const afterSrc = row.afterSources;
+
+      let msg =
+        `Number: ${num}\n` +
+        `txt_Roll: ${row.txtRollLabel || "(none)"}\n\n` +
+        `[Before sources]\n`;
+      if (!beforeSrc || beforeSrc.size === 0) {
+        msg += "  (none)\n";
+      } else {
+        beforeSrc.forEach((val, key) => {
+          msg += `  ${key}: B=${val.B}, S=${val.S}\n`;
+        });
+      }
+
+      msg += `\n[After sources]\n`;
+      if (!afterSrc || afterSrc.size === 0) {
+        msg += "  (none)\n";
+      } else {
+        afterSrc.forEach((val, key) => {
+          msg += `  ${key}: B=${val.B}, S=${val.S}\n`;
+        });
+      }
+
+      alert(msg);
+    }
+
+    function downloadCsv() {
+      if (!compareRows || compareRows.length === 0) return;
+      const onlyDiff = document.getElementById("chkOnlyDiff").checked;
+      const onlyExcelLess = document.getElementById("chkOnlyExcelLess").checked;
+
+      const header = [
+        "Number",
+        "exl_Big",
+        "exl_Small",
+        "txt_Roll",
+        "txt_Big",
+        "txt_Small",
+        "diff_B",
+        "diff_S"
+      ];
+      const lines = [header.join(",")];
+
+      for (const row of compareRows) {
+        if (onlyDiff && row.isSame) continue;
+
+        const excelLess = (row.afterB < row.beforeB) || (row.afterS < row.beforeS);
+        if (onlyExcelLess && !excelLess) continue;
+
+        const arr = [
+          row.number,
+          row.afterB,
+          row.afterS,
+          row.txtRollLabel || "",
+          row.beforeB,
+          row.beforeS,
+          row.diffB,
+          row.diffS
+        ];
+        lines.push(arr.join(","));
+      }
+
+      const csvContent = lines.join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "TXT_vs_Excel_Compare.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // 檔案選擇時自動解析
+    document.getElementById("wbFiles").addEventListener("change", parseWbFiles);
+    document.getElementById("excelFiles").addEventListener("change", parseExcelFiles);
+  </script>
+</body>
+</html>

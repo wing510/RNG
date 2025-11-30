@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Main</title>
+
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --line:#e5e7eb;
+    --text:#111827;
+    --muted:#6b7280;
+    --card:#fff;
+    --primary:#2563eb;
+    --primary-2:#1d4ed8;
+    --radius:10px;
+    --shadow:0 6px 20px rgba(17,24,39,0.08);
+  }
+
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system,"Segoe UI",
+      "Microsoft JhengHei",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Header */
+  .header{
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    padding:12px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:var(--shadow);
+  }
+  .header-title{
+    font-size:20px;
+    font-weight:800;
+  }
+  .logout-btn{
+    padding:6px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    cursor:pointer;
+  }
+  .logout-btn:hover{
+    background:#f3f4f6;
+  }
+
+  /* Layout */
+  .layout{
+    flex:1;
+    display:flex;
+    overflow:hidden;
+  }
+
+  /* Sidebar */
+  .sidebar{
+    width:200px;
+    border-right:1px solid var(--line);
+    background:#fff;
+    padding:12px 8px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .menu-title{
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:4px;
+    color:#4b5563;
+  }
+  .menu-btn{
+    width:100%;
+    text-align:left;
+    padding:8px 10px;
+    border-radius:8px;
+    font-size:14px;
+    border:1px solid transparent;
+    background:transparent;
+    cursor:pointer;
+  }
+  .menu-btn:hover{
+    background:#f3f4f6;
+  }
+  .menu-btn.active{
+    background:#e5edff;
+    border-color:#2563eb;
+    color:#1d4ed8;
+    font-weight:700;
+  }
+
+  /* Right content */
+  .content{
+    flex:1;
+    padding:0;
+    overflow:hidden;
+  }
+  iframe{
+    width:100%;
+    height:100%;
+    border:0;
+    background:white;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-title">Main</div>
+  <div>
+    <span id="userDisplay" style="margin-right:12px; color:#6b7280"></span>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="menu-title">Menu</div>
+
+    <button class="menu-btn active" data-target="WBv21.html">Number</button>
+    <button class="menu-btn" data-target="B.html">Settings</button>
+    <button class="menu-btn" data-target="C.html">Comparison</button>
+
+  </aside>
+
+  <!-- RIGHT CONTENT -->
+  <div class="content">
+    <iframe id="toolFrame" src="WBv21.html"></iframe>
+  </div>
+
+</div>
+
+<script>
+  /* Detect local file usage */
+  const isFile = location.protocol === "file:";
+  let user="";
+
+  if(!isFile){
+    user = sessionStorage.getItem("loggedInUser");
+    if(!user) location.href="login.html";
+  } else {
+    user = "local-test";
+  }
+
+  document.getElementById("userDisplay").textContent = "User: " + user;
+
+  /* Logout */
+  document.getElementById("logoutBtn").onclick = ()=>{
+    if(!isFile) sessionStorage.removeItem("loggedInUser");
+    location.href = "login.html";
+  };
+
+  /* Menu buttons */
+  const frame = document.getElementById("toolFrame");
+  const buttons = document.querySelectorAll(".menu-btn");
+
+  buttons.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const t = btn.dataset.target;
+      frame.src = t;
+
+      buttons.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+</script>
+
+</body>
+</html>

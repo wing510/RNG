@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RNG</title>
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --text:#111827;
+      --muted:#6b7280;
+      --primary:#2563eb;
+      --primary-2:#1d4ed8;
+      --shadow-soft:0 18px 45px rgba(15,23,42,0.12);
+      --radius-card:18px;
+      --radius-input:10px;
+      --radius-btn:14px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI",
+        "Microsoft JhengHei", sans-serif;
+      color:var(--text);
+    }
+
+    .card-wrap{
+      width:100%;
+      max-width:420px;
+      padding:0 16px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-soft);
+      padding:28px 28px 26px;
+    }
+
+    .title{
+      text-align:center;
+      font-size:24px;
+      font-weight:700;
+      margin:0 0 22px;
+      letter-spacing:0.04em;
+    }
+
+    .field-label{
+      font-size:14px;
+      color:#111827;
+      margin-bottom:6px;
+      font-weight:600;
+    }
+
+    .field-group{
+      margin-bottom:14px;
+    }
+
+    input[type="text"],
+    input[type="password"]{
+      width:100%;
+      border-radius:var(--radius-input);
+      border:1px solid var(--line);
+      height:44px;
+      padding:8px 12px;
+      font-size:14px;
+      outline:none;
+      background:#ffffff;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 1px rgba(37,99,235,0.1);
+    }
+
+    .btn{
+      width:100%;
+      margin-top:4px;
+      height:46px;
+      border-radius:var(--radius-btn);
+      border:none;
+      background:#2563eb;
+      color:#ffffff;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 14px 30px rgba(37,99,235,0.45);
+      letter-spacing:0.08em;
+    }
+    .btn:hover{
+      background:var(--primary-2);
+    }
+
+    .error{
+      margin-top:12px;
+      font-size:13px;
+      color:#ef4444;
+      min-height:18px;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card-wrap">
+  <div class="card">
+    <h1 class="title">Login</h1>
+
+    <form id="loginForm">
+      <div class="field-group">
+        <div class="field-label">Username</div>
+        <input type="text" id="username" autocomplete="username" required />
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Password</div>
+        <input type="password" id="password" autocomplete="current-password" required />
+      </div>
+
+      <button class="btn" type="submit">Login</button>
+      <div id="error" class="error"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Allowed accounts (SHA-256)
+  const allowedUsers = [
+    {
+      username: "admin",
+      passwordHash: "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3" // 123
+    },
+    {
+      username: "user",
+      passwordHash: "6af4cdb8429d302a33000c92b59437780150bb15c1faad65fee099f9920034ab" // rng123
+    },
+    {
+      username: "test",
+      passwordHash: "6af4cdb8429d302a33000c92b59437780150bb15c1faad65fee099f9920034ab" // rng123
+    }
+  ];
+
+  async function sha256(str){
+    const data = new TextEncoder().encode(str);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2,"0"))
+      .join("");
+  }
+
+  const form = document.getElementById("loginForm");
+  const errorDiv = document.getElementById("error");
+
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    errorDiv.textContent = "";
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if(!username || !password){
+      errorDiv.textContent = "Please enter username and password.";
+      return;
+    }
+
+    const hash = await sha256(password);
+    const user = allowedUsers.find(u => u.username === username && u.passwordHash === hash);
+
+    if(user){
+      sessionStorage.setItem("loggedInUser", user.username);
+      window.location.href = "main.html";
+    }else{
+      errorDiv.textContent = "Invalid username or password.";
+    }
+  });
+</script>
+
+</body>
+</html>
