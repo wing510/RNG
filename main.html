@@ -155,7 +155,7 @@
 
   if(!isFile){
     user = sessionStorage.getItem("loggedInUser");
-    if(!user) location.href="login.html"; // 如果之後把 login 改成 index，就改這裡
+    if(!user) location.href="login.html";
   } else {
     user = "local-test";
   }
@@ -174,8 +174,12 @@
 
   buttons.forEach(btn=>{
     btn.addEventListener("click",()=>{
-      const t = btn.dataset.target;
-      frame.src = t;
+      let target = btn.dataset.target;
+
+      // 🟦 讓三個頁面全部永遠抓最新版本（避免 cache）
+      target = target + "?_=" + Date.now();
+
+      frame.src = target;
 
       buttons.forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
@@ -185,3 +189,4 @@
 
 </body>
 </html>
+
