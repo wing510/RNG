@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TXT&Excel Compare v2</title>
+  <title>TXT&Excel Compare v3a</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root{
@@ -220,6 +220,7 @@
     th {
       background: #f0f4ff;
       font-weight: 600;
+      cursor: pointer; /* 可點擊排序 */
     }
     td.num-cell {
       font-family: "Consolas", "Courier New", monospace;
@@ -253,6 +254,12 @@
       white-space:pre-line;
     }
 
+    .sort-arrow{
+      margin-left: 4px;
+      font-size: 10px;
+      color: #6b7280;
+    }
+
     @media (max-width: 680px){
       .header{ flex-direction:column; align-items:flex-start; }
       h1{ font-size:20px; }
@@ -266,6 +273,7 @@
     <div class="header">
       <div class="title-wrap">
         <h1>TXT vs Excel Compare</h1>
+        <div class="subtitle">v3 - 新增 Filter篩選 & Sort排序▲</div>
       </div>
       <div class="chip">RNG Tools</div>
     </div>
@@ -328,12 +336,16 @@
       </div>
       <div class="result-controls">
         <label>
-          <input type="checkbox" id="chkOnlyDiff" onchange="renderTable()" checked>
+          <input type="radio" name="filterMode" value="all" onchange="renderTable()">
+          顯示 All
+        </label>
+        <label>
+          <input type="radio" name="filterMode" value="diff" onchange="renderTable()">
           只顯示有差異的號碼
         </label>
         <label>
-          <input type="checkbox" id="chkOnlyExcelLess" onchange="renderTable()">
-          只顯示 exl_B/S 小於 txt_B/S 的號碼
+          <input type="radio" name="filterMode" value="excelLess" onchange="renderTable()" checked>
+          只顯示 exl_B/S 小於 txt_B/S
         </label>
         <span id="resultStats" class="small-note"></span>
       </div>
@@ -344,14 +356,14 @@
         <table id="resultTable">
           <thead>
             <tr>
-              <th>Number</th>
-              <th>exl_Big</th>
-              <th>exl_Small</th>
-              <th>txt_Roll</th>
-              <th>txt_Big</th>
-              <th>txt_Small</th>
-              <th>ΔB</th>
-              <th>ΔS</th>
+              <th onclick="sortTable(0)">Number<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(1)">exl_Big<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(2)">exl_Small<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(3)">txt_Roll<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(4)">txt_Big<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(5)">txt_Small<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(6)">ΔB<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(7)">ΔS<span class="sort-arrow"></span></th>
               <th>Sources</th>
             </tr>
           </thead>
@@ -391,7 +403,7 @@
       const res = new Set();
       if (!/^\d{4}$/.test(digits)) return [];
       const arr = digits.split("");
-      const used = [false,false,false,false];
+           const used = [false,false,false,false];
       const path = [];
 
       function backtrack() {
@@ -1191,18 +1203,25 @@
     function renderTable() {
       const tbody = document.querySelector("#resultTable tbody");
       tbody.innerHTML = "";
-      const onlyDiff = document.getElementById("chkOnlyDiff").checked;
-      const onlyExcelLess = document.getElementById("chkOnlyExcelLess").checked;
+
+      // 讀取三種模式
+      const filterEl = document.querySelector('input[name="filterMode"]:checked');
+      const filter = filterEl ? filterEl.value : "all";
 
       let showCount = 0;
       let diffCount = 0;
 
       for (const row of compareRows) {
-        if (onlyDiff && row.isSame) continue;
+        // Filter: diff only
+        if (filter === "diff" && row.isSame) {
+          continue;
+        }
 
-        // exl_B/S 小於 txt_B/S：只要其中一個小於就算
-        if (onlyExcelLess) {
-          const excelLess = (row.afterB < row.beforeB) || (row.afterS < row.beforeS);
+        // Filter: Excel less than TXT
+        if (filter === "excelLess") {
+          const excelLess =
+            row.afterB < row.beforeB ||
+            row.afterS < row.beforeS;
           if (!excelLess) continue;
         }
 
@@ -1294,8 +1313,9 @@
 
     function downloadCsv() {
       if (!compareRows || compareRows.length === 0) return;
-      const onlyDiff = document.getElementById("chkOnlyDiff").checked;
-      const onlyExcelLess = document.getElementById("chkOnlyExcelLess").checked;
+
+      const filterEl = document.querySelector('input[name="filterMode"]:checked');
+      const filter = filterEl ? filterEl.value : "all";
 
       const header = [
         "Number",
@@ -1310,10 +1330,15 @@
       const lines = [header.join(",")];
 
       for (const row of compareRows) {
-        if (onlyDiff && row.isSame) continue;
+        // 與 renderTable 相同過濾條件
+        if (filter === "diff" && row.isSame) continue;
 
-        const excelLess = (row.afterB < row.beforeB) || (row.afterS < row.beforeS);
-        if (onlyExcelLess && !excelLess) continue;
+        if (filter === "excelLess") {
+          const excelLess =
+            row.afterB < row.beforeB ||
+            row.afterS < row.beforeS;
+          if (!excelLess) continue;
+        }
 
         const arr = [
           row.number,
@@ -1334,11 +1359,63 @@
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = "TXT_vs_Excel_Compare.csv";
+      a.download = "TXT_vs_Excel_Compare_v3a.csv";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+
+    //------------------------------------------------------
+    // 排序功能：點表頭即可排序（升冪 / 降冪 自動切換）＋ 顯示 ▲ / ▼
+    //------------------------------------------------------
+    let sortState = {}; // 每欄的排序狀態
+
+    function sortTable(colIndex) {
+      const table = document.getElementById("resultTable");
+      const tbody = table.querySelector("tbody");
+      let rows = Array.from(tbody.querySelectorAll("tr"));
+
+      // 建立排序方向（第一次 ASC，再來 DESC）
+      sortState[colIndex] = !sortState[colIndex];
+      const asc = sortState[colIndex];
+
+      rows.sort((a, b) => {
+        const A = a.children[colIndex].innerText.trim();
+        const B = b.children[colIndex].innerText.trim();
+
+        // 數字欄位：以數字排序
+        const numA = parseFloat(A);
+        const numB = parseFloat(B);
+        const isNumber = !isNaN(numA) && !isNaN(numB);
+
+        if (isNumber) {
+          return asc ? numA - numB : numB - numA;
+        }
+
+        // 字串欄位：字典排序
+        return asc ? A.localeCompare(B) : B.localeCompare(A);
+      });
+
+      // 重新放回表格
+      rows.forEach(r => tbody.appendChild(r));
+
+      // 更新欄位上的 ▲ / ▼ 顯示
+      updateSortIndicators();
+    }
+
+    function updateSortIndicators() {
+      const ths = document.querySelectorAll("#resultTable thead th");
+      ths.forEach((th, idx) => {
+        const arrowSpan = th.querySelector(".sort-arrow");
+        if (!arrowSpan) return;
+        const state = sortState[idx];
+        if (state === undefined) {
+          arrowSpan.textContent = "";
+        } else {
+          arrowSpan.textContent = state ? "▲" : "▼";
+        }
+      });
     }
 
     // 檔案選擇時自動解析
