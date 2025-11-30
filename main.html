@@ -129,15 +129,21 @@
   <aside class="sidebar">
     <div class="menu-title">Menu</div>
 
-    <button class="menu-btn active" data-target="WBv21.html">Number</button>
-    <button class="menu-btn" data-target="B.html">Settings</button>
-    <button class="menu-btn" data-target="C.html">Comparison</button>
+    <!-- ✅ Number = GENv11 -->
+    <button class="menu-btn active" data-target="GENv11.html">Number</button>
+
+    <!-- ✅ Settings = WBv21 -->
+    <button class="menu-btn" data-target="WBv21.html">Settings</button>
+
+    <!-- ✅ Comparison = TECv2 -->
+    <button class="menu-btn" data-target="TECv2.html">Comparison</button>
 
   </aside>
 
   <!-- RIGHT CONTENT -->
   <div class="content">
-    <iframe id="toolFrame" src="WBv21.html"></iframe>
+    <!-- 預設載入 GENv11.html -->
+    <iframe id="toolFrame" src="GENv11.html"></iframe>
   </div>
 
 </div>
@@ -149,7 +155,7 @@
 
   if(!isFile){
     user = sessionStorage.getItem("loggedInUser");
-    if(!user) location.href="login.html";
+    if(!user) location.href="login.html"; // 如果之後把 login 改成 index，就改這裡
   } else {
     user = "local-test";
   }
