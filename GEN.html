@@ -291,7 +291,7 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">1</div>
-          <div class="card-title">Upload RED File（.txt ）</div>
+          <div class="card-title">Upload RED File / 上傳紅字檔案（.txt）</div>
         </div>
         <div class="toggle-btn" onclick="toggleNote('note1', this)">ⓘ Open</div>
       </div>
@@ -301,12 +301,12 @@
       <div class="form-row" style="margin-top:10px;">
         <div class="form-item">
           <label>Red (Big)</label>
-          <input type="number" id="redBigAmount" value="2" step="1" class="half-input" />
+          <input type="number" id="redBigAmount" value="0" step="1" class="half-input" />
           <div class="hint">Only Red File/ 只套用在紅字檔案</div>
         </div>
         <div class="form-item">
           <label>Red (Small)</label>
-          <input type="number" id="redSmallAmount" value="4" step="1" class="half-input" />
+          <input type="number" id="redSmallAmount" value="0" step="1" class="half-input" />
           <div class="hint">Only Red File/ 只套用在紅字檔案</div>
         </div>
       </div>
@@ -341,7 +341,7 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">2</div>
-          <div class="card-title">Set the Big and Small for the 「Others」</div>
+          <div class="card-title">Set the Big and Small for the 「Others」/ 設定「其他號碼」的大&小</div>
         </div>
         <div class="toggle-btn" onclick="toggleNote('note2', this)">ⓘ Open</div>
       </div>
@@ -349,11 +349,11 @@
       <div class="form-row">
         <div class="form-item">
           <label>Others (Big)</label>
-          <input type="number" id="bigAmount" value="2" step="1" class="half-input" />
+          <input type="number" id="bigAmount" value="0" step="1" class="half-input" />
         </div>
         <div class="form-item">
           <label>Others (Small)</label>
-          <input type="number" id="smallAmount" value="4" step="1" class="half-input" />
+          <input type="number" id="smallAmount" value="0" step="1" class="half-input" />
         </div>
       </div>
 
@@ -702,7 +702,7 @@ Notes:
       const smallIsInt = Number.isInteger(small);
 
       if (!redFileInput.files[0]) {
-        if (!confirm('尚未上傳紅字檔，確定要直接產生 0000-9999 全部號碼？')) {
+        if (!confirm('Red file not uploaded. Generate all numbers (0000–9999) anyway? / 尚未上傳紅字檔，確定要直接產生 0000-9999 全部號碼？')) {
           setStatus('已取消產生分析。', 'warn');
           return;
         }
@@ -847,6 +847,16 @@ Notes:
       hasAnalysis = true;
 
       let msg =
+        `Analysis completed (not downloaded yet).\n` +
+        `Red lines: ${redLinesCount} (file: red_numbers.txt)\n` +
+        `Base lines (after Roll, before spread): ${baseLines}\n` +
+        `Lines selected for spread: ${spreadCount}\n` +
+        `Line multiplier: ${lineMultiplier}\n` +
+        `Final output lines: ${finalLines}\n` +
+        `Other file: other_numbers.txt\n\n` +
+        `If not satisfied, click “Generate” again.\n` +
+        `Click “Download” when ready.\n\n` +
+
         `分析已完成（尚未下載檔案）。\n` +
         `紅字行數：${redLinesCount} 行（檔名：red_numbers.txt）\n` +
         `其他基礎行數（Roll 後未分散）：${baseLines}\n` +
