@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TXT&Excel Compare v3a</title>
+  <title>TXT&Excel Compare v3</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root{
@@ -283,9 +283,9 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">1</div>
-          <div class="card-title">上傳所有 TXT 檔（Before）</div>
+          <div class="card-title">Upload All TXT Files（Before）</div>
         </div>
-        <div class="toggle-btn" onclick="toggleSummary('wbSummaryBox', this)">ⓘ 顯示分析結果</div>
+        <div class="toggle-btn" onclick="toggleSummary('wbSummaryBox', this)">ⓘ Open</div>
       </div>
       <input id="wbFiles" type="file" multiple />
       <div id="wbSummaryBox" class="note-box hidden">
@@ -298,9 +298,9 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">2</div>
-          <div class="card-title">上傳所有 Excel 檔（After）</div>
+          <div class="card-title">Upload All Excel Files（After）</div>
         </div>
-        <div class="toggle-btn" onclick="toggleSummary('excelSummaryBox', this)">ⓘ 顯示分析結果</div>
+        <div class="toggle-btn" onclick="toggleSummary('excelSummaryBox', this)">ⓘ Open</div>
       </div>
       <input id="excelFiles" type="file" multiple accept=".xlsx,.xlsb,.xlsm,.xls" />
       <div id="excelSummaryBox" class="note-box hidden">
@@ -313,12 +313,12 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">3</div>
-          <div class="card-title">Compare & Download</div>
+          <div class="card-title">Compare & Download / 比對&下載</div>
         </div>
-        <div class="toggle-btn" onclick="toggleSummary('compareSummaryBox', this)">ⓘ 顯示分析結果</div>
+        <div class="toggle-btn" onclick="toggleSummary('compareSummaryBox', this)">ⓘ Open</div>
       </div>
       <div class="actions">
-        <button id="btnCompare" class="btn-primary" onclick="runCompare()" disabled>開始 Compare</button>
+        <button id="btnCompare" class="btn-primary" onclick="runCompare()" disabled> Compare</button>
         <button id="btnDownloadCsv" class="btn-secondary" onclick="downloadCsv()" disabled>Download CSV</button>
       </div>
       <div id="compareSummaryBox" class="note-box hidden">
@@ -331,21 +331,21 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">✓</div>
-          <div class="card-title">比對結果 / Comparison Result</div>
+          <div class="card-title">Comparison Result / 比對結果</div>
         </div>
       </div>
       <div class="result-controls">
         <label>
           <input type="radio" name="filterMode" value="all" onchange="renderTable()">
-          顯示 All
+          All Numbers
         </label>
         <label>
           <input type="radio" name="filterMode" value="diff" onchange="renderTable()">
-          只顯示有差異的號碼
+          Only Differences
         </label>
         <label>
           <input type="radio" name="filterMode" value="excelLess" onchange="renderTable()" checked>
-          只顯示 exl_B/S 小於 txt_B/S
+          Only exl_B/S < txt_B/S
         </label>
         <span id="resultStats" class="small-note"></span>
       </div>
@@ -382,10 +382,10 @@
       if (!box) return;
       if (box.classList.contains('hidden')) {
         box.classList.remove('hidden');
-        btnEl.textContent = 'ⓘ 隱藏分析結果';
+        btnEl.textContent = 'ⓘ Close';
       } else {
         box.classList.add('hidden');
-        btnEl.textContent = 'ⓘ 顯示分析結果';
+        btnEl.textContent = 'ⓘ Open';
       }
     }
 
