@@ -125,26 +125,20 @@
 <!-- LAYOUT -->
 <div class="layout">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="menu-title">Menu</div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="menu-title">Menu</div>
 
-    <!-- ✅ Number = GENv11 -->
-    <button class="menu-btn active" data-target="GEN.html">Number</button>
+  <button class="menu-btn active" data-target="GEN.html">Number</button>
+  <button class="menu-btn" data-target="WB.html">Settings</button>
+  <button class="menu-btn" data-target="TEC.html">Comparison</button>
 
-    <!-- ✅ Settings = WBv21 -->
-    <button class="menu-btn" data-target="WB.html">Settings</button>
+</aside>
 
-    <!-- ✅ Comparison = TECv2 -->
-    <button class="menu-btn" data-target="TEC.html">Comparison</button>
-
-  </aside>
-
-  <!-- RIGHT CONTENT -->
-  <div class="content">
-    <!-- 預設載入 GENv11.html -->
-    <iframe id="toolFrame" src="GENv11.html"></iframe>
-  </div>
+<!-- RIGHT CONTENT -->
+<div class="content">
+  <iframe id="toolFrame" src="GEN.html"></iframe>
+</div>
 
 </div>
 
@@ -174,12 +168,8 @@
 
   buttons.forEach(btn=>{
     btn.addEventListener("click",()=>{
-      let target = btn.dataset.target;
-
-      // 🟦 讓三個頁面全部永遠抓最新版本（避免 cache）
-      target = target + "?_=" + Date.now();
-
-      frame.src = target;
+      const t = btn.dataset.target;
+      frame.src = t;
 
       buttons.forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
@@ -189,5 +179,3 @@
 
 </body>
 </html>
-
-
