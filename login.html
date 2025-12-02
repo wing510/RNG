@@ -135,26 +135,26 @@
 </div>
 
 <script>
-  // Allowed accounts (SHA-256)
+
   const allowedUsers = [
     {
-      username: "admin",
-      passwordHash: "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3" // 123
+      userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+      passHash: "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3" 
     },
     {
-      username: "user",
-      passwordHash: "6af4cdb8429d302a33000c92b59437780150bb15c1faad65fee099f9920034ab" // rng123
+      userHash: "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb", 
+      passHash: "5c6f27572d264f85dd4305770593a184db43b386b1109a264170f577761ab16c" 
     },
     {
-      username: "test",
-      passwordHash: "6af4cdb8429d302a33000c92b59437780150bb15c1faad65fee099f9920034ab" // rng123
+      userHash: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", 
+      passHash: "5c6f27572d264f85dd4305770593a184db43b386b1109a264170f577761ab16c" 
     }
   ];
 
-  async function sha256(str){
-    const data = new TextEncoder().encode(str);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(hashBuffer))
+  async function sha256(text){
+    const data = new TextEncoder().encode(text);
+    const hash = await crypto.subtle.digest("SHA-256", data);
+    return [...new Uint8Array(hash)]
       .map(b => b.toString(16).padStart(2,"0"))
       .join("");
   }
@@ -174,11 +174,16 @@
       return;
     }
 
-    const hash = await sha256(password);
-    const user = allowedUsers.find(u => u.username === username && u.passwordHash === hash);
+    const usernameHash = await sha256(username);
+    const passwordHash = await sha256(password);
+
+    const user = allowedUsers.find(
+      u => u.userHash === usernameHash && u.passHash === passwordHash
+    );
 
     if(user){
-      sessionStorage.setItem("loggedInUser", user.username);
+      // store plain username for display in main.html
+      sessionStorage.setItem("loggedInUser", username);
       window.location.href = "main.html";
     }else{
       errorDiv.textContent = "Invalid username or password.";
