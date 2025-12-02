@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>0000-9999號碼產生工具GENv10</title>
+  <title>0000-9999號碼產生工具GENv12</title>
 
   <style>
     :root{
@@ -280,7 +280,7 @@
   <div class="page">
     <div class="header">
       <div class="title-wrap">
-        <h1>0000-9999 號碼產生工具</h1>
+        <h1>0000-9999 RNG</h1>
         <div class="subtitle">Roll 家族選號 + 分散比例 + 行數倍數控制</div>
       </div>
       <div class="chip">RNG Tools</div>
@@ -291,23 +291,23 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">1</div>
-          <div class="card-title">上傳四位數紅字（txt 檔）</div>
+          <div class="card-title">Upload RED File（.txt ）</div>
         </div>
-        <div class="toggle-btn" onclick="toggleNote('note1', this)">ⓘ 顯示說明</div>
+        <div class="toggle-btn" onclick="toggleNote('note1', this)">ⓘ Open</div>
       </div>
 
       <input type="file" id="redFile" accept=".txt" />
 
       <div class="form-row" style="margin-top:10px;">
         <div class="form-item">
-          <label>紅字大萬 (Big)</label>
+          <label>Red (Big)</label>
           <input type="number" id="redBigAmount" value="2" step="1" class="half-input" />
-          <div class="hint">只套用在紅字檔案</div>
+          <div class="hint">Only Red File/ 只套用在紅字檔案</div>
         </div>
         <div class="form-item">
-          <label>紅字小萬 (Small)</label>
+          <label>Red (Small)</label>
           <input type="number" id="redSmallAmount" value="4" step="1" class="half-input" />
-          <div class="hint">只套用在紅字檔案</div>
+          <div class="hint">Only Red File/ 只套用在紅字檔案</div>
         </div>
       </div>
 
@@ -341,23 +341,28 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">2</div>
-          <div class="card-title">設定「其他號碼」的大萬 / 小萬</div>
+          <div class="card-title">Set the Big and Small for the 「Others」</div>
         </div>
-        <div class="toggle-btn" onclick="toggleNote('note2', this)">ⓘ 顯示說明</div>
+        <div class="toggle-btn" onclick="toggleNote('note2', this)">ⓘ Open</div>
       </div>
 
       <div class="form-row">
         <div class="form-item">
-          <label>大萬 (Big)</label>
+          <label>Others (Big)</label>
           <input type="number" id="bigAmount" value="2" step="1" class="half-input" />
         </div>
         <div class="form-item">
-          <label>小萬 (Small)</label>
+          <label>Others (Small)</label>
           <input type="number" id="smallAmount" value="4" step="1" class="half-input" />
         </div>
       </div>
 
       <div id="note2" class="note-box hidden">
+Notes:
+1. Applies only to non-red numbers.
+2. Example: 0000 → 2 4 when Big=2, Small=4.
+3. Spread/multiplier support integer Big/Small only.
+
 說明：
 1. 只對「非紅字」的號碼套用。
 2. 例：大萬=2，小萬=4 時，一般號碼會是：0000 2 4
@@ -370,20 +375,27 @@
       <div class="card-head">
         <div class="step">
           <div class="step-badge">3</div>
-          <div class="card-title">設定 Roll 比例（以家族為母數）</div>
+          <div class="card-title">Set the Roll ratio / 設定Roll比例</div>
         </div>
-        <div class="toggle-btn" onclick="toggleNote('note3', this)">ⓘ 顯示說明</div>
+        <div class="toggle-btn" onclick="toggleNote('note3', this)">ⓘ Open</div>
       </div>
 
       <div class="form-row">
         <div class="form-item" style="grid-column: 1 / -1;">
-          <label>Roll 比例 (%)</label>
+          <label>Roll (%)</label>
           <input type="number" id="rollRatio" value="0" min="0" max="100" class="full-input" />
-          <div class="hint">以「可成 r 的家族數」為母數抽選</div>
+          <div class="hint">Pick using the r-eligible families as the base / 以「可成 r 的家族數」為母數抽選</div>
         </div>
       </div>
 
       <div id="note3" class="note-box hidden">
+Roll Selection Rules (Family-based):
+1. Groups are formed by digit combinations (excluding red numbers).
+For example: 0015 / 0105 / 1500 / 5001… → same family.
+2. A family is r-eligible only if no member is red and it has ≥2 distinct digits.
+3. Roll ratio uses the count of r-eligible families as the base.
+4. Each selected family outputs only one baseline r.
+
 Roll 選號規則（以「家族」為母數）：
 1. 0000-9999（扣紅字）依「數字組合」分家族，例如：
    0015 / 0105 / 1500 / 5001... -> 同一家族。
@@ -400,20 +412,26 @@ Roll 選號規則（以「家族」為母數）：
       <div class="card-head">
         <div class="step">
           <div class="step-badge">4</div>
-          <div class="card-title">設定分散比例</div>
+          <div class="card-title">Set the Spread ratio / 設定分散比例</div>
         </div>
-        <div class="toggle-btn" onclick="toggleNote('note4', this)">ⓘ 顯示說明</div>
+        <div class="toggle-btn" onclick="toggleNote('note4', this)">ⓘ Open</div>
       </div>
 
       <div class="form-row">
         <div class="form-item" style="grid-column: 1 / -1;">
-          <label>分散比例 (%)</label>
+          <label>Spread分散 (%)</label>
           <input type="number" id="spreadRatio" value="0" min="0" max="100" class="full-input" />
-          <div class="hint">一般號碼與 r 號碼都可能被分散</div>
+          <div class="hint">Both Normal and R numbers may be spread. / 一般號碼與 r 號碼都可能被分散</div>
         </div>
       </div>
 
       <div id="note4" class="note-box hidden">
+Spread Logic:
+1. Randomly pick lines to spread (normal + r).
+2. Split selected lines; total Big/Small stays the same.
+3. Avoid generating lines with Big=0 & Small=0.
+4. Unselected lines remain as one line.
+
 分散邏輯：
 1. 依比例隨機選出要分散的行（一般 + r）。
 2. 被選中的行拆成多行，Big/Small 總和不變。
@@ -427,21 +445,26 @@ Roll 選號規則（以「家族」為母數）：
       <div class="card-head">
         <div class="step">
           <div class="step-badge">5</div>
-          <div class="card-title">設定行數倍數</div>
+          <div class="card-title">Set the Line Multiplier / 設定行數倍數</div>
         </div>
-        <div class="toggle-btn" onclick="toggleNote('note5', this)">ⓘ 顯示說明</div>
+        <div class="toggle-btn" onclick="toggleNote('note5', this)">ⓘ Open</div>
       </div>
 
       <div class="form-row">
         <div class="form-item" style="grid-column: 1 / -1;">
-          <label>行數倍數</label>
+          <label>Line Multiplier</label>
           <input type="number" id="lineMultiplier" value="1.0" step="0.1" min="1" class="full-input" />
-          <div class="hint">控制分散後的總行數接近倍數目標</div>
+          <div class="hint">Make the total lines close to the multiplier target / 控制分散後的總行數接近倍數目標</div>
         </div>
       </div>
 
       <div id="note5" class="note-box hidden">
-說明：
+Notes:
+1. Base lines = the lines after Roll, before spreading (excluding red numbers).
+2. Multiplier 1.4 → target ≈ base lines × 1.4
+3. The spread ratio decides which numbers get split; the multiplier decides how many parts each line is split into.
+4. If the multiplier is too small, the minimum achievable value will be used instead.
+
 1. 基礎行數 = Roll 後、未分散前行數（不含紅字）。
 2. 倍數 1.4 → 目標 ≈ 基礎行數 × 1.4
 3. 分散比例決定選誰拆；倍數決定每行拆幾份。
@@ -454,13 +477,13 @@ Roll 選號規則（以「家族」為母數）：
       <div class="card-head">
         <div class="step">
           <div class="step-badge">✓</div>
-          <div class="card-title">產生分析 & 下載結果</div>
+          <div class="card-title">Generate & Download / 產生分析 & 下載 txt 檔</div>
         </div>
       </div>
 
       <div class="actions">
-        <button class="btn-primary" id="analyzeBtn">產生分析</button>
-        <button class="btn-secondary" id="downloadBtn">下載 txt 檔</button>
+        <button class="btn-primary" id="analyzeBtn">Generate</button>
+        <button class="btn-secondary" id="downloadBtn">Download</button>
       </div>
 
       <div id="status" class="msg"></div>
@@ -475,10 +498,10 @@ Roll 選號規則（以「家族」為母數）：
       if (!note) return;
       if (note.classList.contains('hidden')) {
         note.classList.remove('hidden');
-        btnEl.textContent = 'ⓘ 隱藏說明';
+        btnEl.textContent = 'ⓘ Close';
       } else {
         note.classList.add('hidden');
-        btnEl.textContent = 'ⓘ 顯示說明';
+        btnEl.textContent = 'ⓘ Open';
       }
     }
 
