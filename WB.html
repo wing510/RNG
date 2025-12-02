@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Web/Bin 設定與分配 v21</title>
+  <title>Web/Bin 設定與分配 v22</title>
 
   <style>
     :root{
@@ -291,7 +291,7 @@
 
   <div class="header">
     <div class="title-wrap">
-      <h1>Web/Bin 設定與分配</h1>
+      <h1>Web/Bin Settings & Allocation</h1>
       <div class="subtitle">v21（自動儲存還原 Web / Bin 設定｜不記錄星期與大萬小萬）</div>
     </div>
     <div class="chip">RNG Tools</div>
@@ -302,12 +302,18 @@
     <div class="card-head">
       <div class="step">
         <div class="step-badge">1</div>
-        <div class="card-title">設定 Web</div>
+        <div class="card-title">Web Settings</div>
       </div>
-      <div class="toggle-btn" onclick="toggleNote('note-web', this)">ⓘ 顯示說明</div>
+      <div class="toggle-btn" onclick="toggleNote('note-web', this)">ⓘ Open</div>
     </div>
 
     <div id="note-web" class="note-box hidden">
+・Each Web row: Key + TG + ARA = 100
+・Total Web Red% must equal 100
+・Total Web + Bin Other% must equal 100
+・TG format: Week ID Num B-S or ID Week Num B-S
+・Used to allocate red numbers and others
+
 ・每一列 Web 的「Key + TG + ARA = 100」
 ・全部 Web 的 Red% 總和 = 100
 ・全部 Web + Bin 的 Other% 總和 = 100
@@ -321,7 +327,7 @@
           <th>Co. Name</th>
           <th>ARA ID</th>
           <th>TG ID</th>
-          <th>TG 格式</th>
+          <th>TG Fmt</th>
           <th>TG Cnt</th>
           <th>Key / TG / ARA</th>
           <th>Red%</th>
@@ -333,7 +339,7 @@
     </table>
 
     <div class="actions" style="justify-content:flex-start;">
-      <button class="btn-primary" id="add-web-row-btn">+ 新增 Web </button>
+      <button class="btn-primary" id="add-web-row-btn">+ Add Web </button>
     </div>
   </section>
 
@@ -342,12 +348,16 @@
     <div class="card-head">
       <div class="step">
         <div class="step-badge">2</div>
-        <div class="card-title">設定 Bin</div>
+        <div class="card-title">Bin Settings</div>
       </div>
-      <div class="toggle-btn" onclick="toggleNote('note-bin', this)">ⓘ 顯示說明</div>
+      <div class="toggle-btn" onclick="toggleNote('note-bin', this)">ⓘ Open</div>
     </div>
 
     <div id="note-bin" class="note-box hidden">
+・Total Web + Bin Other% must equal 100
+・Bin contains only ARA (no Key/TG)
+・Other% defines how“other numbers” are assigned to Bin
+
 ・全部 Web + Bin 的 Other% 總和 = 100
 ・Bin 只有 ARA（沒有 Key / TG）
 ・Other% 代表「其他號碼」分到 Bin 的比例
@@ -366,7 +376,7 @@
     </table>
 
     <div class="actions" style="justify-content:flex-start;">
-      <button class="btn-primary" id="add-bin-row-btn">+ 新增 Bin </button>
+      <button class="btn-primary" id="add-bin-row-btn">+ Add Bin </button>
     </div>
   </section>
 
@@ -375,9 +385,9 @@
     <div class="card-head">
       <div class="step">
         <div class="step-badge">3</div>
-        <div class="card-title">上傳紅字 / 其他字（含重新設定大萬小萬）</div>
+        <div class="card-title">Upload Red & Other Numbers (incl. Big/Small reset) 上傳紅字& 其他字（含重新設定大/小）</div>
       </div>
-      <div class="toggle-btn" onclick="toggleNote('note-upload', this)">ⓘ 顯示說明</div>
+      <div class="toggle-btn" onclick="toggleNote('note-upload', this)">ⓘ Open</div>
     </div>
 
     <div id="note-upload" class="note-box hidden">
@@ -395,35 +405,35 @@
 
     <div class="form-row" style="margin-top:6px;">
       <div class="form-item" style="grid-column:1/-1;">
-        <label>上傳紅字 TXT</label>
+        <label>Upload Red File / 上傳紅字檔案 (.txt)</label>
         <input type="file" id="red-file" accept=".txt" />
-        <div class="hint">上傳紅字檔案後，可選擇是否重新覆蓋 Big / Small</div>
+        <div class="hint">After uploading Red file, choose whether to overwrite Big&Small 上傳紅字檔案後，可選擇是否重新覆蓋大&小</div>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-item">
-        <label>重新設定紅字大萬 (Big)</label>
-        <input type="number" id="red-big" placeholder="不填則保留原本" step="0.01" />
-        <div class="hint">只套用紅字檔（可留空）</div>
+        <label>Reset Red (Big)</label>
+        <input type="number" id="red-big" placeholder="Leave blank to keep original / 不填則保留原本" step="0.01" />
+        <div class="hint">Apply Red file only (optional) / 只套用紅字檔（可留空）</div>
       </div>
       <div class="form-item">
-        <label>重新設定紅字小萬 (Small)</label>
-        <input type="number" id="red-small" placeholder="不填則保留原本" step="0.01" />
-        <div class="hint">只套用紅字檔（可留空）</div>
+        <label>Reset Red (Small)</label>
+        <input type="number" id="red-small" placeholder="Leave blank to keep original / 不填則保留原本" step="0.01" />
+        <div class="hint">Apply Red file only (optional) / 只套用紅字檔（可留空）</div>
       </div>
       <div class="form-item">
         <label>星期（必填）</label>
-        <input type="number" id="other-week" step="1" placeholder="例如：3" />
-        <div class="hint">按「分配 / 下載」前一定要填寫</div>
+        <input type="number" id="other-week" step="1" placeholder="For example：3" />
+        <div class="hint">Required before “Allocate” / 按「分配」前一定要填寫</div>
       </div>
     </div>
 
     <div class="form-row" style="margin-top:6px;">
       <div class="form-item" style="grid-column:1/-1;">
-        <label>上傳其他字 TXT</label>
+        <label>Upload Other Numbers / 上傳其他字 TXT</label>
         <input type="file" id="other-file" accept=".txt" />
-        <div class="hint">包含一般號碼與 r 號碼</div>
+        <div class="hint">Includes normal and R numbers / 包含一般號碼與 r 號碼</div>
       </div>
     </div>
   </section>
@@ -433,35 +443,45 @@
     <div class="card-head">
       <div class="step">
         <div class="step-badge">4</div>
-        <div class="card-title">分配並下載（Web/Bin 分開下載）</div>
+        <div class="card-title">Allocate & Download / 分配&下載</div>
       </div>
-      <div class="toggle-btn" onclick="toggleNote('note-download', this)">ⓘ 顯示說明</div>
+      <div class="toggle-btn" onclick="toggleNote('note-download', this)">ⓘ Open</div>
     </div>
 
     <div id="note-download" class="note-box hidden">
+Usage Flow:
+1) Click “Allocate” to generate results
+2) Click “Re-Allocate” to reroll random values
+3) ✅ After confirming ratios, download files:
+   ・Download All.rar → All Web & Bin files (requires unzip)
+   ・Download Web_ARA → Web ARA only
+   ・Download Web_KEY/TG → Web Key + Web TG
+   ・Download Bin_ARA → Bin  ARA only
+   ・Download_All → Combined output for RNGsystem
+
 使用流程：
-1) 先按「❶ 分配並顯示比例」產生結果
+1) 先按「分配」產生結果
 2) 需要重新亂數 → 按「重新分配」
 3) ✅ 確認比例 OK 後再下載
-   ・❷ 下載 Web_ARA → 只下載 Web-ARA
-   ・❸ 下載 Web_KEY/TG → 只下載 Web-Key + Web-TG
-   ・❹ 下載 Bin → Bin-ARA 各自一個 txt
-   ・❺ 下載 Download_All → 整合全部區塊（適用RNGsystem）
-   ・❻ 下載 All.rar → 下載Web&Bin全部檔案，需解壓縮
+   ・下載 All.rar → 下載Web&Bin全部檔案，需解壓縮
+   ・下載 Web_ARA → 只下載 Web-ARA
+   ・下載 Web_KEY/TG → 只下載 Web-Key + Web-TG
+   ・下載 Bin_ARA → 只下載Bin-ARA
+   ・下載 Download_All → 整合全部區塊（適用RNGsystem）
 
     </div>
 
     <div class="actions" style="justify-content:flex-start;">
-      <button class="btn-primary" id="allocate-btn">❶ 分配並顯示比例</button>
-      <button class="btn-secondary" id="rerun-btn" disabled>重新分配</button>
+      <button class="btn-primary" id="allocate-btn">Allocate 分配</button>
+      <button class="btn-secondary" id="rerun-btn" disabled>Re-Allocate 重新分配</button>
     </div>
 
     <div class="actions" style="justify-content:flex-start; margin-top:6px;">
-      <button class="btn" id="download-web-ara-btn" disabled>❷ 下載 Web_ARA 檔案</button>
-      <button class="btn" id="download-web-keytg-btn" disabled>❸ 下載 Web_KEY/TG 檔案</button>
-      <button class="btn" id="download-bin-btn" disabled>❹ 下載 Bin 檔案</button>
-      <button class="btn" id="download-all-btn" disabled>❺ 下載 Download_All 檔案</button>
-      <button class="btn" id="download-all-rar-btn" disabled>❻ 下載 All.rar</button>
+      <button class="btn" id="download-all-rar-btn" disabled>Download All.rar</button>
+      <button class="btn" id="download-web-ara-btn" disabled>Download Web_ARA</button>
+      <button class="btn" id="download-web-keytg-btn" disabled>Download Web_KEY/TG</button>
+      <button class="btn" id="download-bin-btn" disabled>Download Bin_ARA</button>
+      <button class="btn" id="download-all-btn" disabled>Download_All.txt</button>
     </div>
 
     <div id="summary-area" class="hint"></div>
@@ -476,10 +496,10 @@ function toggleNote(id, btnEl) {
   if (!note) return;
   if (note.classList.contains('hidden')) {
     note.classList.remove('hidden');
-    btnEl.textContent = 'ⓘ 隱藏說明';
+    btnEl.textContent = 'ⓘ Close';
   } else {
     note.classList.add('hidden');
-    btnEl.textContent = 'ⓘ 顯示說明';
+    btnEl.textContent = 'ⓘ Open';
   }
 }
 
@@ -514,7 +534,7 @@ let lastOutputs = null;
 function validateWeekRequired() {
   const week = otherWeekInput.value.trim();
   if (week === "") {
-    alert("請先填寫『星期』");
+    alert("Fill in“Week”first / 請先填寫『星期』");
     return false;
   }
   return true;
@@ -525,7 +545,7 @@ function validateWeekRequired() {
 --------------------------------------------------------- */
 function validateOtherFileRequired() {
   if (!otherFileContent || otherFileContent.trim() === "") {
-    alert("請先上傳『其他字 TXT』");
+    alert("Upload“Other TXT”first / 請先上傳『其他字 TXT』");
     return false;
   }
   return true;
@@ -703,8 +723,8 @@ function createWebRow() {
 
     <td>
       <select class="web-tg-format">
-        <option value="dateFirst">星期 ID</option>
-        <option value="tgFirst">ID 星期</option>
+        <option value="dateFirst">Week ID</option>
+        <option value="tgFirst">ID Week</option>
       </select>
     </td>
 
@@ -728,7 +748,7 @@ function createWebRow() {
       <input type="number" class="web-other" step="0.01">
     </td>
 
-    <td><button class="btn btn-danger btn-delete-row">刪</button></td>
+    <td><button class="btn btn-danger btn-delete-row">Del</button></td>
   `;
   tr.querySelector(".btn-delete-row").onclick = () => tr.remove();
   return tr;
@@ -740,7 +760,7 @@ function createBinRow() {
     <td class="bin-uniform"><input type="text" class="bin-co-name"></td>
     <td class="bin-uniform"><input type="text" class="bin-ara-id"></td>
     <td class="bin-uniform"><input type="number" class="bin-other-percent" step="0.01"></td>
-    <td class="delete-cell"><button class="btn btn-danger btn-delete-row">刪</button></td>
+    <td class="delete-cell"><button class="btn btn-danger btn-delete-row">Del</button></td>
   `;
   tr.querySelector(".btn-delete-row").onclick = () => tr.remove();
   return tr;
@@ -1016,11 +1036,11 @@ function validatePercents(cfg) {
   });
 
   if (Math.abs(sumRed - 100) > epsilon) {
-    alert(`全部 Web 的 Red % 必須 = 100，目前為 ${sumRed}`);
+    alert(`Total Web Red% must be 100, current: ${sumRed}`);
     return false;
   }
   if (Math.abs(sumOther - 100) > epsilon) {
-    alert(`全部 Web+Bin 的 Other % 必須 = 100，目前為 ${sumOther}`);
+    alert(`Total Web+Bin Other %must be 100, current:  ${sumOther}`);
     return false;
   }
   return true;
