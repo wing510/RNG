@@ -1326,18 +1326,26 @@ function downloadTextFile(filename, content) {
 /* ---------------------------------------------------------
    依 outputs 建立內容
 --------------------------------------------------------- */
+// ✅ 統一輸出內容：同一個 outputs[o] 只生成一次，之後都用同一份
 function buildFileContent(o) {
   const list = o.list;
-  if (!list.length) return "";
+  if (!list || !list.length) return "";
+
+  // 🔒 若已經產生過內容，就直接回傳快取，避免第二次亂數
+  if (o._cachedContent && typeof o._cachedContent === "string") {
+    return o._cachedContent;
+  }
 
   let content = "";
 
   if (o.type === "web-key") {
+    // 仍然可以亂數，但只在第一次呼叫時發生
     shuffle(list);
     content = list.map(r => formatKeyLine(r)).join("\n");
   }
 
   if (o.type === "web-tg") {
+    // 一樣只在第一次呼叫時做 shuffle + 分組
     shuffle(list);
 
     // 先照原本格式產生每筆 raw line
@@ -1350,7 +1358,7 @@ function buildFileContent(o) {
       return `${date} ${o.tgId} ${r.num} ${bs}`.trim();
     });
 
-    // 若有 TG Cnt，就套用分組
+    // 若有 TG Cnt，就套用分組（裡面有亂數，也只會跑一次）
     if (o.tgCnt && o.tgCnt.trim() && o.tgCnt.trim() !== "0") {
       rawLines = groupTgLines(rawLines, o.tgCnt);
     }
@@ -1363,6 +1371,8 @@ function buildFileContent(o) {
     content = list.map(r => formatAraLine(r, o.araId)).join("\n");
   }
 
+  // ✅ 把結果快取起來，之後所有下載都用同一版本
+  o._cachedContent = content;
   return content;
 }
 
