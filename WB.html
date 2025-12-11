@@ -321,7 +321,7 @@
   <div class="header">
     <div class="title-wrap">
       <h1>Web/Bin Settings & Allocation</h1>
-      <div class="subtitle">v24（拖曳排序｜Save｜Summary 修正）</div>
+      <div class="subtitle">v24（拖曳排序｜Save Settings｜Summary 修正｜分配結果暫存）</div>
     </div>
     <div class="chip">RNG Tools</div>
   </div>
@@ -431,6 +431,7 @@ Other TXT Format (incl. r)
 8888r 1 0
 (r goes only to Web-Key or Web-TG based on rules)
 (r 會依規則只進 Web-Key 或 Web-TG)
+
 ⚠️ Week is required; validated before Allocate/Download
 ⚠️ 星期必填，按「分配」與「下載」前會檢查。
     </div>
@@ -581,6 +582,10 @@ const summaryArea = document.getElementById('summary-area');
 let redFileContent = '';
 let otherFileContent = '';
 let lastOutputs = null;
+
+/* ✅ 新增：WB 分配結果暫存（sessionStorage） */
+const STORAGE_KEY = "wbv24_last_config";        // 原本設定用 localStorage
+const RESULT_KEY  = "wbv24_last_outputs";      // 新增：分配結果用 sessionStorage
 
 /* 星期必填 */
 function validateWeekRequired() {
@@ -842,8 +847,6 @@ function makeTableDraggable(tbody) {
 }
 
 /* localStorage：只記 Web / Bin 設定 */
-const STORAGE_KEY = "wbv21_last_config";
-
 function saveLastConfig() {
   const cfg = getCurrentConfig();
   const dataToStore = {
@@ -899,6 +902,46 @@ function restoreLastConfig() {
     });
   }
   return true;
+}
+
+/* ✅ 新增：WB 分配結果存到 sessionStorage（關掉瀏覽器就清掉） */
+function saveAllocationResults() {
+  if (!lastOutputs) return;
+  const payload = {
+    outputs: lastOutputs,
+    summaryHtml: summaryArea.innerHTML || "",
+    redFileContent: redFileContent || "",
+    otherFileContent: otherFileContent || "",
+    week: otherWeekInput.value || "",
+    ts: Date.now()
+  };
+  try {
+    sessionStorage.setItem(RESULT_KEY, JSON.stringify(payload));
+  } catch (e) {
+    console.warn("WBv24：儲存分配結果失敗", e);
+  }
+}
+
+function restoreAllocationResults() {
+  try {
+    const raw = sessionStorage.getItem(RESULT_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data || !data.outputs) return;
+
+    lastOutputs = data.outputs;
+    summaryArea.innerHTML = data.summaryHtml || "";
+    redFileContent   = data.redFileContent   || "";
+    otherFileContent = data.otherFileContent || "";
+    if (typeof data.week === "string" || typeof data.week === "number") {
+      otherWeekInput.value = data.week;
+    }
+    if (lastOutputs) {
+      downloadAllRarBtn.disabled = false;
+    }
+  } catch (e) {
+    console.warn("WBv24：還原分配結果失敗", e);
+  }
 }
 
 /* 上傳紅字 / 其他字 */
@@ -1442,9 +1485,14 @@ function buildSummary(outputs) {
     totalRCount  += rCount;
   });
 
+  const totalRPct = totalRCount > 0 ? "100.00%" : "0.00%";
+
   const bodyHtml = rows.map(r => {
     const rPct = totalRCount > 0
       ? (r.rCount * 100 / totalRCount).toFixed(2) + "%"
+
+
+
       : "0.00%";
 
     return `
@@ -1461,8 +1509,6 @@ function buildSummary(outputs) {
       </tr>
     `;
   }).join("");
-
-  const totalRPct = totalRCount > 0 ? "100.00%" : "0.00%";
 
   const totalRow = `
     <tr style="font-weight:bold; background:#eef2ff;">
@@ -1725,6 +1771,9 @@ allocateBtn.onclick = () => {
   lastOutputs = o;
   summaryArea.innerHTML = buildSummary(o);
   downloadAllRarBtn.disabled = false;
+
+  // ✅ 分配完成後，立即暫存這一版結果（本次 session 有效）
+  saveAllocationResults();
 };
 
 downloadAllRarBtn.onclick = () => {
@@ -1762,6 +1811,9 @@ if (!restoreLastConfig()) {
   addBinPreset("BC128",  "K39");
   addBinPreset("LIAN88", "39");
 }
+
+/* ✅ 頁面載入時，也把上一次分配結果（同一個 session）載回來 */
+restoreAllocationResults();
 
 document.getElementById("add-web-row-btn").onclick = () =>
   webTableBody.appendChild(createWebRow());
