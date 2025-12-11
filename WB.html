@@ -431,7 +431,6 @@ Other TXT Format (incl. r)
 8888r 1 0
 (r goes only to Web-Key or Web-TG based on rules)
 (r 會依規則只進 Web-Key 或 Web-TG)
-
 ⚠️ Week is required; validated before Allocate/Download
 ⚠️ 星期必填，按「分配」與「下載」前會檢查。
     </div>
@@ -468,15 +467,26 @@ Other TXT Format (incl. r)
     </div>
 
     <div id="note-download" class="note-box hidden">
-Usage Flow:
-1) Click “Allocate” to generate results
-2) ✅ After confirming ratios, download files:
-   ・Download → All Web & Bin files (requires unzip)
+Summary:
+Lines: Actual number of output lines, including TG auto-grouping.
+Records: Original record count (r numbers not expanded).
+Unique: Total unique numbers after expanding all r numbers.
+Big: Total Big count after r expansion.
+Small: Total Small count after r expansion.
+Amount: Total amount = Big × 1.6 + Small × 0.7.
+R Count: Number of original records that contain an r.
+R%: This file’s R Count as a percentage of overall R Count.
+Total: Sum across all files; Unique is based on all expanded numbers.
 
-使用流程：
-1) 先按「分配」產生結果
-2) ✅ 確認比例 OK 後再下載
-   ・下載 Download → 下載Web&Bin全部檔案，需解壓縮
+Lines：本檔最終輸出行數（含 TG 自動分組後的結果）。
+Records：原始筆數（r 不拆開）。
+Unique：展開 r 後去重的實際號碼數量。
+Big：展開 r 後累計的大總數。
+Small：展開 r 後累計的小總數。
+Amount：金額＝Big×1.6 + Small×0.7。
+R Count：本檔原始資料中含 r 的筆數。
+R%：本檔 R Count 占所有檔案 R Count 的比例。
+Total：各欄位加總；Unique 為全部展開後號碼的去重總數。
     </div>
 
     <div class="actions" style="justify-content:flex-start; margin-top:6px;">
@@ -1473,9 +1483,9 @@ function buildSummary(outputs) {
       <thead>
         <tr>
           <th>File Name</th>
-          <th>Lines</th>
-          <th>Records</th>
-          <th>Unique</th>
+          <th>Lines行數</th>
+          <th>Records筆數</th>
+          <th>Unique去重</th>
           <th>Big</th>
           <th>Small</th>
           <th>Amount</th>
