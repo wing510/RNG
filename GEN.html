@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>0000-9999號碼產生工具GENv13</title>
+  <title>0000-9999號碼產生工具GENv14</title>
 
   <style>
     :root{
@@ -491,8 +491,6 @@ Notes:
   </div>
 
   <script>
-    // ========= GENv9 JS 全保留（不改邏輯） =========
-
     function toggleNote(id, btnEl) {
       const note = document.getElementById(id);
       if (!note) return;
@@ -530,7 +528,7 @@ Notes:
     const statusDiv = document.getElementById('status');
 
     const SETTINGS_KEY = 'GENv12_settings';
-    const RESULTS_KEY = 'GENv12_results';
+    const RESULTS_KEY  = 'GENv12_results';
 
     function setStatus(text, type = 'ok') {
       statusDiv.textContent = text;
@@ -540,7 +538,7 @@ Notes:
       else if (type === 'error') statusDiv.classList.add('status-error');
     }
 
-    // ========= 設定儲存 / 載入 (Step 1~5) =========
+    // ========= 設定儲存 / 載入 (Step 1~5，localStorage) =========
     function saveSettings() {
       const data = {
         redBig:   document.getElementById('redBigAmount').value,
@@ -578,7 +576,7 @@ Notes:
       }
     }
 
-    // ========= 產生結果暫存 / 載入 =========
+    // ========= 結果暫存 / 載入（sessionStorage，關掉瀏覽器就清空） =========
     function saveResults() {
       if (!hasAnalysis) return;
       const data = {
@@ -588,7 +586,7 @@ Notes:
         ts:           Date.now()
       };
       try {
-        localStorage.setItem(RESULTS_KEY, JSON.stringify(data));
+        sessionStorage.setItem(RESULTS_KEY, JSON.stringify(data));
       } catch (e) {
         console.error(e);
       }
@@ -596,7 +594,7 @@ Notes:
 
     function loadResults() {
       try {
-        const raw = localStorage.getItem(RESULTS_KEY);
+        const raw = sessionStorage.getItem(RESULTS_KEY);
         if (!raw) return;
         const data = JSON.parse(raw);
         if (!data) return;
@@ -608,8 +606,8 @@ Notes:
 
         if (hasAnalysis) {
           setStatus(
-            (lastStatsText || '已載入上次產生的結果，可直接按 Download 下載。') +
-            '\n（此為暫存結果，如需更新請重新按 Generate。）',
+            (lastStatsText || '已載入本次視窗先前產生的結果，可直接按 Download 下載。') +
+            '\n（關閉瀏覽器或分頁後將會清除。）',
             'ok'
           );
         }
@@ -710,7 +708,7 @@ Notes:
 
         lines.forEach(line => {
           // 不 trimStart，保留行首空白，讓「前面有空白」的行被視為無效
-          const raw = line.replace(/\r$/, ''); // 保險去掉多餘的 \r
+          const raw = line.replace(/\r$/, '');
           if (raw === '') return; // 空行直接略過，不算在 totalLines
 
           totalLines++;
@@ -718,13 +716,12 @@ Notes:
           // 只抓「行首連續的 1～4 位數字」
           const m = raw.match(/^(\d{1,4})/);
           if (!m) {
-            // 行首不是數字（或有空白、符號、文字） → 當作無效行
             ignoredNoLeadingDigits++;
             return;
           }
 
-          const digits = m[1];                 // 抓到的 1～4 位數字
-          const num = digits.padStart(4, '0'); // 左邊補 0 成四位
+          const digits = m[1];
+          const num = digits.padStart(4, '0');
           redSet.add(num);
           effectiveLines++;
         });
@@ -761,7 +758,6 @@ Notes:
 
       reader.readAsText(file, 'utf-8');
     });
-
 
     function runAnalysis() {
       const redBig = parseFloat(document.getElementById('redBigAmount').value || '0') || 0;
@@ -960,7 +956,7 @@ Notes:
       // Generate 之前先存 1~5 的設定
       saveSettings();
       runAnalysis();
-      // 產生完成後，把結果也暫存
+      // 產生完成後，把結果暫存到當前 session
       saveResults();
     });
 
@@ -978,7 +974,6 @@ Notes:
       }
 
       setStatus(lastStatsText + '\n已下載 red_numbers.txt 與 other_numbers.txt（若有紅字）。', 'ok');
-      // 下載後也更新一下暫存（主要是 stats 文字）
       saveResults();
     });
 
