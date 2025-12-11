@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>0000-9999號碼產生工具GENv12</title>
+  <title>0000-9999號碼產生工具GENv13</title>
 
   <style>
     :root{
@@ -332,7 +332,6 @@
 6. 紅字大萬 / 小萬只套用於紅字檔案，與其他號碼分開計算。
 </div>
 
-
       <div id="redSummary"></div>
     </section>
 
@@ -482,6 +481,7 @@ Notes:
       </div>
 
       <div class="actions">
+        <button class="btn-secondary" id="saveBtn">Save Settings</button>
         <button class="btn-primary" id="analyzeBtn">Generate</button>
         <button class="btn-secondary" id="downloadBtn">Download</button>
       </div>
@@ -529,12 +529,93 @@ Notes:
     const redSummary = document.getElementById('redSummary');
     const statusDiv = document.getElementById('status');
 
+    const SETTINGS_KEY = 'GENv12_settings';
+    const RESULTS_KEY = 'GENv12_results';
+
     function setStatus(text, type = 'ok') {
       statusDiv.textContent = text;
       statusDiv.className = 'msg';
       if (type === 'ok') statusDiv.classList.add('status-ok');
       else if (type === 'warn') statusDiv.classList.add('status-warn');
       else if (type === 'error') statusDiv.classList.add('status-error');
+    }
+
+    // ========= 設定儲存 / 載入 (Step 1~5) =========
+    function saveSettings() {
+      const data = {
+        redBig:   document.getElementById('redBigAmount').value,
+        redSmall: document.getElementById('redSmallAmount').value,
+        big:      document.getElementById('bigAmount').value,
+        small:    document.getElementById('smallAmount').value,
+        roll:     document.getElementById('rollRatio').value,
+        spread:   document.getElementById('spreadRatio').value,
+        mult:     document.getElementById('lineMultiplier').value
+      };
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+        setStatus('Settings saved; will auto-apply next time. / 設定已儲存，下次開啟頁面會自動套用。', 'ok');
+      } catch (e) {
+        console.error(e);
+        setStatus('儲存設定失敗（localStorage 可能被關閉）。', 'error');
+      }
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+
+        if (data.redBig   !== undefined) document.getElementById('redBigAmount').value   = data.redBig;
+        if (data.redSmall !== undefined) document.getElementById('redSmallAmount').value = data.redSmall;
+        if (data.big      !== undefined) document.getElementById('bigAmount').value      = data.big;
+        if (data.small    !== undefined) document.getElementById('smallAmount').value    = data.small;
+        if (data.roll     !== undefined) document.getElementById('rollRatio').value      = data.roll;
+        if (data.spread   !== undefined) document.getElementById('spreadRatio').value    = data.spread;
+        if (data.mult     !== undefined) document.getElementById('lineMultiplier').value = data.mult;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ========= 產生結果暫存 / 載入 =========
+    function saveResults() {
+      if (!hasAnalysis) return;
+      const data = {
+        redContent:   lastRedContent,
+        otherContent: lastOtherContent,
+        stats:        lastStatsText,
+        ts:           Date.now()
+      };
+      try {
+        localStorage.setItem(RESULTS_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function loadResults() {
+      try {
+        const raw = localStorage.getItem(RESULTS_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data) return;
+
+        lastRedContent   = data.redContent   || '';
+        lastOtherContent = data.otherContent || '';
+        lastStatsText    = data.stats        || '';
+        hasAnalysis      = !!(lastRedContent || lastOtherContent);
+
+        if (hasAnalysis) {
+          setStatus(
+            (lastStatsText || '已載入上次產生的結果，可直接按 Download 下載。') +
+            '\n（此為暫存結果，如需更新請重新按 Generate。）',
+            'ok'
+          );
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function getPermutations(numStr) {
@@ -872,11 +953,20 @@ Notes:
       setStatus(msg, 'ok');
     }
 
-    document.getElementById('analyzeBtn').addEventListener('click', runAnalysis);
+    // 綁定按鈕 & 載入設定/結果
+    document.getElementById('saveBtn').addEventListener('click', saveSettings);
+
+    document.getElementById('analyzeBtn').addEventListener('click', function () {
+      // Generate 之前先存 1~5 的設定
+      saveSettings();
+      runAnalysis();
+      // 產生完成後，把結果也暫存
+      saveResults();
+    });
 
     document.getElementById('downloadBtn').addEventListener('click', function () {
       if (!hasAnalysis) {
-        setStatus('尚未產生分析，請先按「產生分析」。', 'warn');
+        setStatus('尚未產生分析，請先按「Generate」。', 'warn');
         return;
       }
 
@@ -888,6 +978,13 @@ Notes:
       }
 
       setStatus(lastStatsText + '\n已下載 red_numbers.txt 與 other_numbers.txt（若有紅字）。', 'ok');
+      // 下載後也更新一下暫存（主要是 stats 文字）
+      saveResults();
+    });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      loadSettings();
+      loadResults();
     });
   </script>
 </body>
