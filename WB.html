@@ -772,16 +772,16 @@ function createWebRow() {
     </td>
     <td class="uniform-cell">
       <div class="kta-row">
-        <input type="number" class="kta kta-key" placeholder="Key" step="0.01">
-        <input type="number" class="kta kta-tg"  placeholder="TG"  step="0.01">
-        <input type="number" class="kta kta-ara" placeholder="ARA" step="0.01">
+        <input type="number" class="kta kta-key" placeholder="Key" step="1" min="0" max="100">
+        <input type="number" class="kta kta-tg"  placeholder="TG"  step="1" min="0" max="100">
+        <input type="number" class="kta kta-ara" placeholder="ARA" step="1" min="0" max="100">
       </div>
     </td>
     <td class="uniform-cell">
-      <input type="number" class="web-red" step="0.01">
+      <input type="number" class="web-red" step="1" min="0" max="100">
     </td>
     <td class="uniform-cell">
-      <input type="number" class="web-other" step="0.01">
+      <input type="number" class="web-other" step="1" min="0" max="100">
     </td>
     <td><button class="btn btn-danger btn-delete-row">Del</button></td>
   `;
@@ -795,7 +795,7 @@ function createBinRow() {
   tr.innerHTML = `
     <td class="bin-uniform"><input type="text" class="bin-co-name"></td>
     <td class="bin-uniform"><input type="text" class="bin-ara-id"></td>
-    <td class="bin-uniform"><input type="number" class="bin-other-percent" step="0.01"></td>
+    <td class="bin-uniform"><input type="number" class="bin-other-percent" step="1" min="0" max="100"></td>
     <td class="delete-cell"><button class="btn btn-danger btn-delete-row">Del</button></td>
   `;
   tr.querySelector(".btn-delete-row").onclick = () => tr.remove();
@@ -1842,3 +1842,4 @@ if (saveBinConfigBtn) {
 </div>
 </body>
 </html>
+
