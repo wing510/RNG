@@ -1114,7 +1114,9 @@ function validatePercents(cfg) {
 
     if (key || tg || ara) {
       if (Math.abs(sumKTA - 100) > epsilon) {
-        alert(`第 ${idx + 1} 列 Web 的 Key+TG+ARA 必須 = 100，目前為：${sumKTA}`);
+        alert(
+  `Web row ${idx + 1}: Key + TG + ARA must equal 100, current: ${sumKTA}\n` +
+  `第 ${idx + 1} 列 Web 的 Key+TG+ARA 必須 = 100，目前為：${sumKTA}`);
         return false;
       }
     }
@@ -1840,7 +1842,7 @@ if (saveWebConfigBtn) {
     if (!validatePercents(cfg)) return; // ❌ 不通過就不存
 
     saveLastConfig();
-    alert("已檢查通過並儲存 (Checked & Saved)");
+    alert("Checked & Saved / 已檢查通過並儲存");
   });
 }
 
@@ -1854,7 +1856,7 @@ if (saveBinConfigBtn) {
     if (!validatePercents(cfg)) return; // ❌ 不通過就不存
 
     saveLastConfig();
-    alert("已檢查通過並儲存 (Checked & Saved)");
+    alert("Checked & Saved / 已檢查通過並儲存");
   });
 }
 
