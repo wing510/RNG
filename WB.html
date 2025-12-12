@@ -367,10 +367,16 @@
       <tbody></tbody>
     </table>
 
-    <div class="actions" style="justify-content:flex-start; gap:8px;">
-      <button class="btn-primary" id="add-web-row-btn">+ Add Web </button>
-      <button class="btn" id="save-web-config-btn">Save</button>
-    </div>
+<div class="actions" style="justify-content:flex-start; gap:12px; align-items:center;">
+  <button class="btn-primary" id="add-web-row-btn">+ Add Web </button>
+  <button class="btn" id="save-web-config-btn">Save</button>
+
+  <!-- ✅ 即時百分比顯示 -->
+  <div id="percent-live-hint" style="font-size:13px; font-weight:600;">
+    Web Red%：<span id="sum-web-red">0</span> / 100　
+    Web + Bin Other%：<span id="sum-all-other">0</span> / 100
+  </div>
+</div>
   </section>
 
   <!-- Step 2：Bin 設定 -->
@@ -431,7 +437,6 @@ Other TXT Format (incl. r)
 8888r 1 0
 (r goes only to Web-Key or Web-TG based on rules)
 (r 會依規則只進 Web-Key 或 Web-TG)
-
 ⚠️ Week is required; validated before Allocate/Download
 ⚠️ 星期必填，按「分配」與「下載」前會檢查。
     </div>
@@ -471,7 +476,7 @@ Other TXT Format (incl. r)
 Summary:
 Lines: Actual number of output lines, including TG auto-grouping.
 Records: Original record count (r numbers not expanded).
-Unique: Total unique numbers after expanding all r numbers.
+Number: Total unique numbers after expanding all r numbers.
 Big: Total Big count after r expansion.
 Small: Total Small count after r expansion.
 Amount: Total amount = Big × 1.6 + Small × 0.7.
@@ -481,13 +486,13 @@ Total: Sum across all files; Unique is based on all expanded numbers.
 
 Lines：本檔最終輸出行數（含 TG 自動分組後的結果）。
 Records：原始筆數（r 不拆開）。
-Unique：展開 r 後去重的實際號碼數量。
+Number：展開 r 後去重的實際號碼數量。
 Big：展開 r 後累計的大總數。
 Small：展開 r 後累計的小總數。
 Amount：金額＝Big×1.6 + Small×0.7。
 R Count：本檔原始資料中含 r 的筆數。
 R%：本檔 R Count 占所有檔案 R Count 的比例。
-Total：各欄位加總；Unique 為全部展開後號碼的去重總數。
+Total：各欄位加總；Number Total為全部展開後號碼的去重總數。
     </div>
 
     <div class="actions" style="justify-content:flex-start; margin-top:6px;">
@@ -1529,9 +1534,9 @@ function buildSummary(outputs) {
       <thead>
         <tr>
           <th>File Name</th>
-          <th>Lines行數</th>
-          <th>Records筆數</th>
-          <th>Unique去重</th>
+          <th>Lines 行數</th>
+          <th>Records 筆數</th>
+          <th>Number 去重</th>
           <th>Big</th>
           <th>Small</th>
           <th>Amount</th>
@@ -1826,20 +1831,82 @@ const saveBinConfigBtn = document.getElementById("save-bin-config-btn");
 
 if (saveWebConfigBtn) {
   saveWebConfigBtn.addEventListener("click", () => {
+    // ✅ Save 就檢查：Web Red% =100、Web+Bin Other%=100（含每列 Key+TG+ARA=100）
+    const cfg = getCurrentConfig();
+
+    // 先更新一下旁邊即時顯示（如果你有加 live hint）
+    if (typeof updatePercentLiveHint === "function") updatePercentLiveHint();
+
+    if (!validatePercents(cfg)) return; // ❌ 不通過就不存
+
     saveLastConfig();
-    alert("Web / Bin 設定已儲存 (Saved Web/Bin settings)");
+    alert("已檢查通過並儲存 (Checked & Saved)");
   });
 }
 
 if (saveBinConfigBtn) {
   saveBinConfigBtn.addEventListener("click", () => {
+    // ✅ Save 就檢查：Web Red% =100、Web+Bin Other%=100（含每列 Key+TG+ARA=100）
+    const cfg = getCurrentConfig();
+
+    if (typeof updatePercentLiveHint === "function") updatePercentLiveHint();
+
+    if (!validatePercents(cfg)) return; // ❌ 不通過就不存
+
     saveLastConfig();
-    alert("Web / Bin 設定已儲存 (Saved Web/Bin settings)");
+    alert("已檢查通過並儲存 (Checked & Saved)");
   });
 }
+
+/* ===============================
+   即時顯示百分比總和（不阻擋操作）
+================================ */
+
+function updatePercentLiveHint() {
+  let sumWebRed = 0;
+  let sumOther = 0;
+
+  // Web
+  document.querySelectorAll('#web-table tbody tr').forEach(tr => {
+    const red = Number(tr.querySelector('.web-red')?.value || 0);
+    const other = Number(tr.querySelector('.web-other')?.value || 0);
+    sumWebRed += red;
+    sumOther += other;
+  });
+
+  // Bin
+  document.querySelectorAll('#bin-table tbody tr').forEach(tr => {
+    const other = Number(tr.querySelector('.bin-other-percent')?.value || 0);
+    sumOther += other;
+  });
+
+  const redEl = document.getElementById('sum-web-red');
+  const otherEl = document.getElementById('sum-all-other');
+
+  redEl.textContent = sumWebRed;
+  otherEl.textContent = sumOther;
+
+  // 顏色提示
+  redEl.style.color   = (sumWebRed === 100) ? '#16a34a' : '#ef4444';
+  otherEl.style.color = (sumOther === 100) ? '#16a34a' : '#ef4444';
+}
+
+/* 監聽所有百分比輸入框 */
+document.addEventListener('input', (e) => {
+  if (
+    e.target.classList.contains('web-red') ||
+    e.target.classList.contains('web-other') ||
+    e.target.classList.contains('bin-other-percent')
+  ) {
+    updatePercentLiveHint();
+  }
+});
+
+/* 初始載入時計算一次 */
+setTimeout(updatePercentLiveHint, 0);
+
 </script>
 
 </div>
 </body>
 </html>
-
