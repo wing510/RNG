@@ -17,6 +17,11 @@
     const beforeDetail = new Map(); // number -> Map(sourceId -> {B,S})
     const afterDetail = new Map();  // number -> Map(sourceId -> {B,S})
     const rollSourceBefore = new Map(); // number -> Set(rollLabel from TXT)
+
+    let lastWbParse = null;
+    let lastExcelParse = null;
+    let lastCompareStats = null;
+    let lastSideTotals = null;
     let compareRows = [];
 
     // ====== 共用小工具 ======
@@ -340,6 +345,24 @@
       return { countLines, countNums };
     }
 
+    function formatWbSummary(data) {
+      if (!data) return "";
+      const details = (data.fileDetails || [])
+        .map(d => I18n.t("tec.wbFileDetail", d))
+        .join("\n");
+      return I18n.t("tec.wbSummary", { ...data, details });
+    }
+
+    function formatExcelSummary(data) {
+      if (!data) return "";
+      const details = (data.fileDetails || []).map(d => {
+        if (d.kind === "readFail") return I18n.t("tec.excelReadFail", { name: d.name });
+        if (d.kind === "noStructure") return I18n.t("tec.excelNoStructure", { name: d.name });
+        return I18n.t("tec.excelSheetOk", d);
+      }).join("\n");
+      return I18n.t("tec.excelSummary", { ...data, details });
+    }
+
     function parseWbFiles() {
       beforeMap.clear();
       beforeDetail.clear();
@@ -351,7 +374,8 @@
 
       const files = Array.from(input.files || []);
       if (files.length === 0) {
-        summaryEl.textContent = I18n.t("tec.noFiles");
+        lastWbParse = null;
+        summaryEl.textContent = "";
         updateCompareButton();
         return;
       }
@@ -381,18 +405,23 @@
 
           totalLines += r.countLines;
           totalNums += r.countNums;
-          detailLines.push(`${file.name} → lines:${r.countLines}, numbers:${r.countNums}`);
+          detailLines.push({
+            name: file.name,
+            lines: r.countLines,
+            nums: r.countNums
+          });
 
           finished++;
           if (finished === files.length) {
             const distinct = beforeMap.size;
-            summaryEl.textContent = I18n.t("tec.wbSummary", {
+            lastWbParse = {
               count: files.length,
-              details: detailLines.join("\n"),
+              fileDetails: detailLines,
               lines: totalLines,
               nums: totalNums,
               distinct
-            });
+            };
+            summaryEl.textContent = formatWbSummary(lastWbParse);
             updateCompareButton();
           }
         };
@@ -674,7 +703,8 @@
 
       const files = Array.from(input.files || []);
       if (files.length === 0) {
-        summaryEl.textContent = I18n.t("tec.noFiles");
+        lastExcelParse = null;
+        summaryEl.textContent = "";
         const warnEl = document.getElementById("excelParseWarn");
         warnEl.textContent = "";
         warnEl.classList.add("hidden");
@@ -696,7 +726,7 @@
           try {
             workbook = XLSX.read(data, { type: "array" });
           } catch (err) {
-            detailLines.push(I18n.t("tec.excelReadFail", { name: file.name }));
+            detailLines.push({ kind: "readFail", name: file.name });
             finished++;
             if (finished === files.length) finalize();
             return;
@@ -729,14 +759,15 @@
 
           if (sheetUsed === 0) {
             failedFiles.push(file.name);
-            detailLines.push(I18n.t("tec.excelNoStructure", { name: file.name }));
+            detailLines.push({ kind: "noStructure", name: file.name });
           } else {
-            detailLines.push(I18n.t("tec.excelSheetOk", {
+            detailLines.push({
+              kind: "ok",
               name: file.name,
               sheets: sheetUsed,
               rows: fileRowCount,
               nums: fileNumCount
-            }));
+            });
           }
 
           finished++;
@@ -748,13 +779,14 @@
       function finalize() {
         const input = document.getElementById("excelFiles");
         const distinct = afterMap.size;
-        summaryEl.textContent = I18n.t("tec.excelSummary", {
+        lastExcelParse = {
           count: (input.files || []).length,
-          details: detailLines.join("\n"),
+          fileDetails: detailLines,
           rows: totalRows,
           nums: totalNums,
           distinct
-        });
+        };
+        summaryEl.textContent = formatExcelSummary(lastExcelParse);
 
         const warnEl = document.getElementById("excelParseWarn");
         if (failedFiles.length > 0) {
@@ -816,11 +848,12 @@
       compareRows.sort((a, b) => a.number.localeCompare(b.number));
 
       const summaryEl = document.getElementById("compareSummary");
-      summaryEl.textContent = I18n.t("tec.compareSummary", {
+      lastCompareStats = {
         total: compareRows.length,
         same: sameCount,
         diff: diffCount
-      });
+      };
+      summaryEl.textContent = I18n.t("tec.compareSummary", lastCompareStats);
 
       // TXT / Excel 總結
       let txtB = 0, txtS = 0;
@@ -838,14 +871,8 @@
       const exlNum = afterMap.size;
 
       const totalsEl = document.getElementById("sideTotals");
-      totalsEl.textContent = I18n.t("tec.sideTotals", {
-        txtNum,
-        txtB,
-        txtS,
-        exlNum,
-        exlB,
-        exlS
-      });
+      lastSideTotals = { txtNum, txtB, txtS, exlNum, exlB, exlS };
+      totalsEl.textContent = I18n.t("tec.sideTotals", lastSideTotals);
 
       document.getElementById("btnDownloadCsv").disabled = compareRows.length === 0;
       renderTable();
@@ -1066,3 +1093,17 @@
     // 檔案選擇時自動解析
     document.getElementById("wbFiles").addEventListener("change", parseWbFiles);
     document.getElementById("excelFiles").addEventListener("change", parseExcelFiles);
+
+    function refreshTecLangContent() {
+      const wbEl = document.getElementById("wbSummary");
+      const excelEl = document.getElementById("excelSummary");
+      const compareEl = document.getElementById("compareSummary");
+      const totalsEl = document.getElementById("sideTotals");
+      if (lastWbParse && wbEl) wbEl.textContent = formatWbSummary(lastWbParse);
+      if (lastExcelParse && excelEl) excelEl.textContent = formatExcelSummary(lastExcelParse);
+      if (lastCompareStats && compareEl) compareEl.textContent = I18n.t("tec.compareSummary", lastCompareStats);
+      if (lastSideTotals && totalsEl) totalsEl.textContent = I18n.t("tec.sideTotals", lastSideTotals);
+      if (compareRows && compareRows.length) renderTable();
+    }
+
+    I18n.onChange(refreshTecLangContent);
