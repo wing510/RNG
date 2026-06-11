@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n-page-title="tec.pageTitle">TXT & Excel Compare v2.3</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="css/tec.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title-wrap">
+        <h1 data-i18n="tec.title">TXT vs Excel Compare</h1>
+        <div class="subtitle" data-i18n="tec.subtitle">v2.3</div>
+      </div>
+      <div class="chip" data-i18n="common.chip">RNG Tools v2.3</div>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">1</div>
+          <div class="card-title" data-i18n="tec.step1">Upload All TXT Files (Before)</div>
+        </div>
+        <div class="toggle-btn" data-note="wbSummaryBox" onclick="toggleSummary('wbSummaryBox', this)">ⓘ Open</div>
+      </div>
+      <input id="wbFiles" type="file" multiple />
+      <div id="wbSummaryBox" class="note-box hidden">
+        <div id="wbSummary" class="summary"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">2</div>
+          <div class="card-title" data-i18n="tec.step2">Upload All Excel Files (After)</div>
+          <div class="excel-warn" data-i18n="tec.excelWarn">Note: Excel needs headers</div>
+        </div>
+        <div class="toggle-btn" data-note="excelSummaryBox" onclick="toggleSummary('excelSummaryBox', this)">ⓘ Open</div>
+      </div>
+      <input id="excelFiles" type="file" multiple accept=".xlsx,.xlsb,.xlsm,.xls" />
+      <div id="excelParseWarn" class="excel-parse-warn hidden"></div>
+      <div id="excelSummaryBox" class="note-box hidden">
+        <div id="excelSummary" class="summary"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">3</div>
+          <div class="card-title" data-i18n="tec.step3">Compare & Download</div>
+        </div>
+        <div class="toggle-btn" data-note="compareSummaryBox" onclick="toggleSummary('compareSummaryBox', this)">ⓘ Open</div>
+      </div>
+      <div class="actions">
+        <button id="btnCompare" class="btn-primary" onclick="runCompare()" disabled data-i18n="tec.compare">Compare</button>
+        <button id="btnDownloadCsv" class="btn-secondary" onclick="downloadCsv()" disabled data-i18n="tec.downloadCsv">Download CSV</button>
+      </div>
+      <div id="compareSummaryBox" class="note-box hidden">
+        <div id="compareSummary" class="summary"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">✓</div>
+          <div class="card-title" data-i18n="tec.stepResult">Comparison Result</div>
+        </div>
+      </div>
+      <div class="result-controls">
+        <label>
+          <input type="radio" name="filterMode" value="all" onchange="renderTable()">
+          <span data-i18n="tec.filterAll">All Numbers</span>
+        </label>
+        <label>
+          <input type="radio" name="filterMode" value="diff" onchange="renderTable()">
+          <span data-i18n="tec.filterDiff">Only Differences</span>
+        </label>
+        <label>
+          <input type="radio" name="filterMode" value="excelLess" onchange="renderTable()" checked>
+          <span data-i18n="tec.filterExcelLess">Only exl_B/S < txt_B/S</span>
+        </label>
+        <span id="resultStats" class="small-note"></span>
+      </div>
+      <div id="sideTotals" class="small-note"></div>
+      <div style="max-height: 420px; overflow:auto; border:1px solid #e5e7eb; border-radius:8px; margin-top:4px;">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)">Number<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(1)">exl_Big<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(2)">exl_Small<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(3)">txt_Roll<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(4)">txt_Big<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(5)">txt_Small<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(6)">ΔB<span class="sort-arrow"></span></th>
+              <th onclick="sortTable(7)">ΔS<span class="sort-arrow"></span></th>
+              <th>Sources</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <script src="js/i18n.js"></script>
+  <script src="js/tec.js"></script>
+</body>
+</html>

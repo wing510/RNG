@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n-page-title="index.title">RNG Tools v2.3</title>
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="loginView">
+    <div class="card-wrap">
+      <div class="login-card">
+        <div class="login-top">
+          <h1 class="login-title" data-i18n="index.title">RNG Tools v2.3</h1>
+          <div class="lang-switch">
+            <button type="button" class="lang-btn" data-lang="zh">中文</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+          </div>
+        </div>
+        <form id="loginForm">
+          <div class="field-group">
+            <div class="field-label" data-i18n="index.username">Username</div>
+            <input type="text" id="username" autocomplete="username" required />
+          </div>
+          <div class="field-group">
+            <div class="field-label" data-i18n="index.password">Password</div>
+            <input type="password" id="password" autocomplete="current-password" required />
+          </div>
+          <button class="btn" type="submit" data-i18n="index.login">Login</button>
+          <div id="error" class="error"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="appView" class="hidden">
+    <div class="header">
+      <div class="header-title" data-i18n="index.title">RNG Tools v2.3</div>
+      <div class="header-actions">
+        <div class="lang-switch">
+          <button type="button" class="lang-btn" data-lang="zh">中文</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <span id="userDisplay" class="user-display"></span>
+        <button class="logout-btn" id="logoutBtn" data-i18n="index.logout">Logout</button>
+      </div>
+    </div>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="menu-title" data-i18n="index.menu">Menu</div>
+        <button class="menu-btn active" data-target="GEN.html" data-i18n="index.menuNumber">Number</button>
+        <button class="menu-btn" data-target="WB.html" data-i18n="index.menuSettings">Settings</button>
+        <button class="menu-btn" data-target="TEC.html" data-i18n="index.menuComparison">Comparison</button>
+      </aside>
+      <div class="content">
+        <iframe id="toolFrame" src="GEN.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

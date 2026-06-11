@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n-page-title="gen.pageTitle">0000-9999 RNG v2.3</title>
+  <link rel="stylesheet" href="css/gen.css" />
+</head>
+
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title-wrap">
+        <h1 data-i18n="gen.title">0000-9999 RNG</h1>
+        <div class="subtitle" data-i18n="gen.subtitle">v2.3</div>
+      </div>
+      <div class="chip" data-i18n="common.chip">RNG Tools v2.3</div>
+    </div>
+
+    <!-- Step 1 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">1</div>
+          <div class="card-title" data-i18n="gen.step1">Upload RED File</div>
+        </div>
+        <div class="toggle-btn" data-note="note1" onclick="toggleNote('note1', this)">ⓘ Open</div>
+      </div>
+
+      <input type="file" id="redFile" accept=".txt" />
+
+      <div class="form-row" style="margin-top:10px;">
+        <div class="form-item">
+          <label data-i18n="gen.redBig">Red (Big)</label>
+          <input type="number" id="redBigAmount" value="0" step="1" class="half-input" />
+          <div class="hint" data-i18n="gen.redHint">Only Red File</div>
+        </div>
+        <div class="form-item">
+          <label data-i18n="gen.redSmall">Red (Small)</label>
+          <input type="number" id="redSmallAmount" value="0" step="1" class="half-input" />
+          <div class="hint" data-i18n="gen.redHint">Only Red File</div>
+        </div>
+      </div>
+
+      <div id="note1" class="note-box hidden" data-i18n-html="gen.note1"></div>
+      <div id="redSummary"></div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">2</div>
+          <div class="card-title" data-i18n="gen.step2">Set Others Big & Small</div>
+        </div>
+        <div class="toggle-btn" data-note="note2" onclick="toggleNote('note2', this)">ⓘ Open</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-item">
+          <label data-i18n="gen.othersBig">Others (Big)</label>
+          <input type="number" id="bigAmount" value="0" step="1" class="half-input" />
+        </div>
+        <div class="form-item">
+          <label data-i18n="gen.othersSmall">Others (Small)</label>
+          <input type="number" id="smallAmount" value="0" step="1" class="half-input" />
+        </div>
+      </div>
+
+      <div id="note2" class="note-box hidden" data-i18n-html="gen.note2"></div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">3</div>
+          <div class="card-title" data-i18n="gen.step3">Set Roll Ratio</div>
+        </div>
+        <div class="toggle-btn" data-note="note3" onclick="toggleNote('note3', this)">ⓘ Open</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-item" style="grid-column: 1 / -1;">
+          <label data-i18n="gen.rollPct">Roll (%)</label>
+          <input type="number" id="rollRatio" value="0" min="0" max="100" class="full-input" />
+          <div class="hint" data-i18n="gen.rollHint">Roll hint</div>
+        </div>
+      </div>
+
+      <div id="note3" class="note-box hidden" data-i18n-html="gen.note3"></div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">4</div>
+          <div class="card-title" data-i18n="gen.step4">Set Spread Ratio</div>
+        </div>
+        <div class="toggle-btn" data-note="note4" onclick="toggleNote('note4', this)">ⓘ Open</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-item" style="grid-column: 1 / -1;">
+          <label data-i18n="gen.spreadPct">Spread (%)</label>
+          <input type="number" id="spreadRatio" value="0" min="0" max="100" class="full-input" />
+          <div class="hint" data-i18n="gen.spreadHint">Spread hint</div>
+        </div>
+      </div>
+
+      <div id="note4" class="note-box hidden" data-i18n-html="gen.note4"></div>
+    </section>
+
+    <!-- Step 5 -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">5</div>
+          <div class="card-title" data-i18n="gen.step5">Set Line Multiplier</div>
+        </div>
+        <div class="toggle-btn" data-note="note5" onclick="toggleNote('note5', this)">ⓘ Open</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-item" style="grid-column: 1 / -1;">
+          <label data-i18n="gen.lineMult">Line Multiplier</label>
+          <input type="number" id="lineMultiplier" value="1.0" step="0.1" min="1" class="full-input" />
+          <div class="hint" data-i18n="gen.lineMultHint">Line multiplier hint</div>
+        </div>
+      </div>
+
+      <div id="note5" class="note-box hidden" data-i18n-html="gen.note5"></div>
+    </section>
+
+    <!-- Actions -->
+    <section class="card">
+      <div class="card-head">
+        <div class="step">
+          <div class="step-badge">✓</div>
+          <div class="card-title" data-i18n="gen.stepDone">Generate & Download</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" id="saveBtn" data-i18n="gen.saveSettings">Save Settings</button>
+        <button class="btn-primary" id="analyzeBtn" data-i18n="gen.generate">Generate</button>
+        <button class="btn-secondary" id="downloadBtn" data-i18n="gen.download">Download</button>
+      </div>
+
+      <div id="status" class="msg"></div>
+    </section>
+  </div>
+  <script src="js/i18n.js"></script>
+  <script src="js/gen.js"></script>
+</body>
+</html>

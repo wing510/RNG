@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n-page-title="wb.pageTitle">Web/Bin Settings & Allocation v2.3</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="css/wb.css" />
+</head>
+
+<body>
+
+<div id="cloud-overlay" class="cloud-overlay hidden">
+  <div class="cloud-overlay-box">
+    <div class="cloud-progress">
+      <div class="cloud-progress-bar"></div>
+    </div>
+    <div class="cloud-overlay-text" data-i18n="wb.cloudLoading">
+      Fetching cloud settings…
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="header">
+    <div class="title-wrap">
+      <h1 data-i18n="wb.title">Web/Bin Settings & Allocation</h1>
+      <div class="subtitle" data-i18n="wb.subtitle">v2.3</div>
+    </div>
+      <div class="chip" data-i18n="common.chip">RNG Tools v2.3</div>
+    </div>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="step">
+        <div class="step-badge">1</div>
+        <div class="card-title" data-i18n="wb.step1">Web Settings</div>
+      </div>
+      <div class="toggle-btn" data-note="note-web" onclick="toggleNote('note-web', this)">ⓘ Open</div>
+    </div>
+
+    <div id="note-web" class="note-box hidden" data-i18n-html="wb.noteWeb"></div>
+
+    <table id="web-table">
+      <thead>
+        <tr>
+          <th class="drag-handle-cell" data-i18n-title="wb.dragSort"></th>
+          <th data-i18n="wb.coName">Co. Name</th>
+          <th data-i18n="wb.araId">ARA ID</th>
+          <th data-i18n="wb.tgId">TG ID</th>
+          <th data-i18n="wb.tgFmt">TG Fmt</th>
+          <th data-i18n="wb.tgCnt">TG Cnt</th>
+          <th data-i18n="wb.ktaPct">Key / TG / ARA (%)</th>
+          <th data-i18n="wb.redPct">Red (%)</th>
+          <th data-i18n="wb.otherPct">Other (%)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="actions" style="justify-content:flex-start; gap:12px; align-items:center;">
+      <button class="btn-primary" id="add-web-row-btn" data-i18n="wb.addWeb">+ Add Web</button>
+      <button class="btn" id="save-web-config-btn" data-i18n="wb.save">Save</button>
+      <div id="percent-live-hint" style="font-size:13px; font-weight:600;">
+        <span data-i18n="wb.percentWebRed">Web Red%：</span><span id="sum-web-red">0</span> / 100
+        <span data-i18n="wb.percentAllOther">Web + Bin Other%：</span><span id="sum-all-other">0</span> / 100
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="step">
+        <div class="step-badge">2</div>
+        <div class="card-title" data-i18n="wb.step2">Bin Settings</div>
+      </div>
+      <div class="toggle-btn" data-note="note-bin" onclick="toggleNote('note-bin', this)">ⓘ Open</div>
+    </div>
+
+    <div id="note-bin" class="note-box hidden" data-i18n-html="wb.noteBin"></div>
+
+    <table id="bin-table">
+      <thead>
+        <tr>
+          <th class="drag-handle-cell" data-i18n-title="wb.dragSort"></th>
+          <th class="bin-uniform" data-i18n="wb.coName">Co. Name</th>
+          <th class="bin-uniform" data-i18n="wb.araId">ARA ID</th>
+          <th class="bin-uniform" data-i18n="wb.otherPct">Other (%)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="actions" style="justify-content:flex-start; gap:8px;">
+      <button class="btn-primary" id="add-bin-row-btn" data-i18n="wb.addBin">+ Add Bin</button>
+      <button class="btn" id="save-bin-config-btn" data-i18n="wb.save">Save</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="step">
+        <div class="step-badge">3</div>
+        <div class="card-title" data-i18n="wb.step3">Upload Red & Other Numbers</div>
+      </div>
+      <div class="toggle-btn" data-note="note-upload" onclick="toggleNote('note-upload', this)">ⓘ Open</div>
+    </div>
+
+    <div id="note-upload" class="note-box hidden" data-i18n-html="wb.noteUpload"></div>
+
+    <div class="form-row" style="margin-top:6px;">
+      <div class="form-item" style="grid-column:1/-1;">
+        <label data-i18n="wb.uploadRed">Upload Red File (.txt)</label>
+        <input type="file" id="red-file" accept=".txt" />
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:6px; align-items:flex-end;">
+      <div class="form-item" style="grid-column:1/3;">
+        <label data-i18n="wb.uploadOther">Upload Other Numbers (.txt)</label>
+        <input type="file" id="other-file" accept=".txt" />
+        <div class="hint" data-i18n="wb.uploadOtherHint">Includes normal and R numbers</div>
+      </div>
+      <div class="form-item">
+        <label data-i18n="wb.week">Week (Required)</label>
+        <input type="number" id="other-week" step="1" data-i18n-placeholder="wb.weekPlaceholder" />
+        <div class="hint" data-i18n="wb.weekHint">Required before Allocate</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="step">
+        <div class="step-badge">4</div>
+        <div class="card-title" data-i18n="wb.step4">Allocate & Download</div>
+      </div>
+      <div class="toggle-btn" data-note="note-download" onclick="toggleNote('note-download', this)">ⓘ Open</div>
+    </div>
+
+    <div id="note-download" class="note-box hidden" data-i18n-html="wb.noteDownload"></div>
+
+    <div class="actions" style="justify-content:flex-start; margin-top:6px;">
+      <button class="btn-primary" id="allocate-btn" data-i18n="wb.allocate">Allocate</button>
+      <button class="btn-secondary" id="download-all-rar-btn" disabled data-i18n="wb.download">Download</button>
+    </div>
+
+    <div id="summary-area" class="hint"></div>
+  </section>
+
+</div>
+  <script src="js/i18n.js"></script>
+  <script src="js/wb.js"></script>
+</body>
+</html>
