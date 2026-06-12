@@ -32,4 +32,4 @@ js/          Scripts (incl. i18n.js)
 
 ## Repo
 
-[https://github.com/wing510/RNGv2.3](https://github.com/wing510/RNGv2.3)
+[https://github.com/wing510/RNG](https://github.com/wing510/RNG)
