@@ -2,7 +2,7 @@
 
 Browser-based tools for number generation, Web/Bin allocation, and TXT vs Excel comparison.
 
-**Live site:** [https://wing510.github.io/RNG/](https://wing510.github.io/RNG/)
+**Live site:** [https://wing510.github.io/RNGv2.3/](https://wing510.github.io/RNGv2.3/)
 
 ## Features
 
@@ -13,7 +13,7 @@ Browser-based tools for number generation, Web/Bin allocation, and TXT vs Excel 
 
 ## Use online
 
-Open [https://wing510.github.io/RNG/](https://wing510.github.io/RNG/) in Chrome or Edge, then log in.
+Open [https://wing510.github.io/RNGv2.3/](https://wing510.github.io/RNGv2.3/) in Chrome or Edge, then log in.
 
 ## Deploy on company server (IIS)
 
@@ -32,4 +32,4 @@ js/          Scripts (incl. i18n.js)
 
 ## Repo
 
-[https://github.com/wing510/RNG](https://github.com/wing510/RNG)
+[https://github.com/wing510/RNGv2.3](https://github.com/wing510/RNGv2.3)
